@@ -35,20 +35,21 @@
       color: #bef264;
       font-weight: 600;
     }
-    #links { display: none; margin-top: 16px; }
+    #game-links { display: none; margin-top: 16px; }
   </style>
 </head>
 <body>
   <h1>🌿 Photosynthesis Arcade</h1>
   <p>Sign in with your @gmail.com account to play.</p>
 
-  <div id="links">
+  <div id="game-links">
     <a href="snake.html">🐍 Molecules Snake</a>
     <a href="catchthelight.html">💨 Catch the Light (O₂)</a>
   </div>
 
-  <button id="login">Sign in with Google</button>
-  <button id="logout" style="display:none;">Logout</button>
+  <button id="login-btn">Sign in with Google</button>
+  <button id="logout-btn" style="display:none;">Logout</button>
+  <div id="user-info"></div>
 
   <div id="leaderboards">
     <h3>🐍 Snake – Top 10</h3>
@@ -57,41 +58,38 @@
     <div id="lightTop">Loading...</div>
   </div>
 
-  <script type="module" src="./firebase.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const fs = window.firebaseStuff;
-      fs.checkRedirect();
+  <!-- ✅ Firebase setup (shared script) -->
+  <script type="module" src="/platform/firebase.js"></script>
 
-      const login = document.getElementById("login");
-      const logout = document.getElementById("logout");
-      const links = document.getElementById("links");
-      const snakeTop = document.getElementById("snakeTop");
-      const lightTop = document.getElementById("lightTop");
+  <!-- ✅ Lobby logic -->
+  <script type="module">
+    const fs = window.firebaseStuff;
 
-      fs.onAuth((user) => {
-        if (user) {
-          login.style.display = "none";
-          logout.style.display = "inline-block";
-          links.style.display = "block";
-          fs.listenTop("snake", (rows) => {
-            snakeTop.innerHTML = rows.map(r => `<div>${r.userName || "Anon"} — ${r.score}</div>`).join("") || "No scores yet";
-          });
-          fs.listenTop("catchthelight", (rows) => {
-            lightTop.innerHTML = rows.map(r => `<div>${r.userName || "Anon"} — ${r.score}</div>`).join("") || "No scores yet";
-          });
-        } else {
-          login.style.display = "inline-block";
-          logout.style.display = "none";
-          links.style.display = "none";
-          snakeTop.innerHTML = lightTop.innerHTML = "Loading...";
-        }
-      });
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const userInfo = document.getElementById("user-info");
+    const gameLinks = document.getElementById("game-links");
 
-      login.onclick = () => fs.signIn();
-      logout.onclick = () => fs.signOut();
+    loginBtn.onclick = async () => {
+      const user = await fs.signInHarkness?.();
+      if (!user) return;
+    };
+
+    logoutBtn.onclick = () => fs.signOut();
+
+    fs.onAuth((user) => {
+      if (user) {
+        userInfo.textContent = `Signed in as ${user.displayName}`;
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        gameLinks.style.display = "flex";
+      } else {
+        userInfo.textContent = "";
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        gameLinks.style.display = "none";
+      }
     });
   </script>
 </body>
 </html>
-
