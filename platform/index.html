@@ -70,9 +70,8 @@
     const userInfo = document.getElementById("user-info");
     const gameLinks = document.getElementById("game-links");
 
-    loginBtn.onclick = async () => {
-      const user = await fs.signInHarkness?.();
-      if (!user) return;
+loginBtn.onclick = () => fs.signIn();
+
     };
 
     logoutBtn.onclick = () => fs.signOut();
