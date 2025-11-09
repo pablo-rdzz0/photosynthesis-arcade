@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Photosynthesis Snake 🌿</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+/* === tus estilos originales === */
+:root {
+  --accent: #a3e635;
+  --bg1: #0f172a;
+  --bg2: #14532d;
+  --white: #f8fafc;
+}
+html, body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+  color: var(--white);
+  background: radial-gradient(circle at top, #0f172a 0%, #14532d 50%, #0f766e 100%);
+  background-size: 200% 200%;
+  animation: bgmove 16s ease-in-out infinite;
+}
+@keyframes bgmove {
+  0% {background-position: 0 0;}
+  50% {background-position: 100% 100%;}
+  100% {background-position: 0 0;}
+}
+#container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  gap: 24px;
+  padding: 18px clamp(14px, 2vw, 28px);
+  box-sizing: border-box;
+}
+#hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 12px 34px;
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  font-size: 20px;
+  font-weight: 600;
+  z-index: 10;
+}
+#game {
+  border-radius: 22px;
+  background: #e8ffe9;
+  border: 3px solid rgba(248,250,252,0.12);
+  box-shadow: 0 0 80px rgba(0,0,0,0.35);
+}
+.side-panel {
+  width: 280px;
+  max-width: 25vw;
+  background: rgba(15,23,42,0.55);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 20px 22px 16px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.35);
+  backdrop-filter: blur(15px);
+}
+.side-panel h2 {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+  letter-spacing: .03em;
+}
+.target-box {
+  background: radial-gradient(circle at top left, rgba(190,242,100,0.22), rgba(15,23,42,0));
+  border: 1px solid rgba(190,242,100,0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.target-name { font-size: 20px; font-weight: 600; }
+.target-formula { font-size: 16px; opacity: 0.85; }
+.explain { font-size: 14px; opacity: 0.7; margin-top: 6px; line-height: 1.38; }
+.legend { font-size: 13px; opacity: 0.75; margin-top: 14px; }
+.legend div { margin: 4px 0; }
+@media (max-width: 1050px) {
+  #container {flex-direction: column; gap: 14px;}
+  .side-panel {width: min(90vw, 480px);}
+  #hud {flex-direction: column; gap: 6px; font-size: 16px;}
+}
+button.login-btn {
+  background: #bef264;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+button.login-btn:hover {
+  background: #d9f99d;
+}
+</style>
+</head>
+<body>
+
+<!-- === HUD === -->
+<div id="hud">
+  🌿 Round: <span id="round">1</span>
+  🌞 Score: <span id="score">0</span>
+  🎯 Target: <span id="targetName">Water</span>
+  <button id="loginBtn" class="login-btn">Sign in with Google</button>
+</div>
+
+<!-- === MAIN === -->
+<div id="container">
+  <canvas id="game"></canvas>
+  <div class="side-panel">
+    <h2>Photosynthesis Info</h2>
+    <div class="target-box">
+      <div class="target-name" id="targetNameBox">Water</div>
+      <div class="target-formula" id="targetFormula">H₂O</div>
+      <p class="explain" id="targetExplain">
+        Water provides electrons and hydrogen ions during the light reactions.
+      </p>
+    </div>
+    <div class="legend">
+      <div>🟩 Grab the molecule that matches the target.</div>
+      <div>⬛ Wrong one = you lose.</div>
+      <div>⬆️ Move with WASD or Arrow Keys.</div>
+      <div>🟢 A safe bubble appears after correct grabs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- === FIREBASE (inline) === -->
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCK5X7a9It59rd4Sdac9fxH6bCkhZR62bE",
+    authDomain: "photosynthesis-arcade.firebaseapp.com",
+    projectId: "photosynthesis-arcade",
+    storageBucket: "photosynthesis-arcade.firebasestorage.app",
+    messagingSenderId: "912988711333",
+    appId: "1:912988711333:web:b964d63e4b27cc3708604c",
+    measurementId: "G-9CM26QYCJN"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const loginBtn = document.getElementById('loginBtn');
+  let currentUser = null;
+
+  loginBtn.addEventListener('click', async () => {
+    if (!currentUser) {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth.signInWithPopup(provider);
+        alert('✅ Signed in as ' + auth.currentUser.email);
+      } catch (err) {
+        alert('Login error: ' + err.message);
+      }
+    } else {
+      await auth.signOut();
+      alert('👋 Signed out');
+    }
+  });
+
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    loginBtn.textContent = user ? 'Sign out' : 'Sign in with Google';
+  });
+
+  async function saveScore(score) {
+    if (!currentUser) return;
+    await db.collection('scores').add({
+      user: currentUser.email,
+      game: 'snake',
+      score: score,
+      timestamp: new Date()
+    });
+    console.log('✅ Score saved for', currentUser.email);
+  }
+</script>
+
+<!-- === GAME LOGIC === -->
+<script>
+/* === todo tu script original del snake, sin cambios === */
+/* ... pega aquí desde const canvas = ... hasta el final ... */
+/* y en el momento del game over, antes de "return;", agrega:  */
+
+function update() {
+  if (gameOver) return;
+  dir = pendingDir;
+  const head = snake[0];
+  const nh = {x: head.x + dir.x, y: head.y + dir.y};
+
+  if (nh.x < 0 || nh.x >= cols || nh.y < 0 || nh.y >= rows ||
+      snake.some(s => s.x === nh.x && s.y === nh.y)) {
+    gameOver = true;
+    saveScore(score); // 🧠 guarda puntaje
+    return;
+  }
+  // ... resto igual ...
+}
+</script>
+
+</body>
+</html>

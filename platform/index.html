@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Photosynthesis Arcade Lobby</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #0f172a 0%, #166534 55%, #022c22 100%);
+      font-family: system-ui, sans-serif;
+      color: #fff;
+    }
+    .card {
+      background: rgba(15,23,42,0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 26px 30px 28px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      width: min(420px, 92vw);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    }
+    h1 { margin-top: 0; }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    a.lobby-link {
+      display: block;
+      background: #bef264;
+      color: #0f172a;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    a.lobby-link.secondary {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    p { opacity: .7; font-size: .9rem; }
+    #user-info { margin-top: 15px; font-size: .9rem; opacity: .85; }
+    button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    #login-btn { background: #bef264; color: #0f172a; }
+    #logout-btn { background: rgba(255,255,255,0.1); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🌿 Photosynthesis Arcade</h1>
+    <p>Pick a minigame to start.</p>
+
+    <div class="links" id="game-links" style="display:none;">
+      <a class="lobby-link" href="platform/snake.html">Molecules Snake</a>
+      <a class="lobby-link secondary" href="platform/catchthelight.html">Catch the Light</a>
+    </div>
+
+    <button id="login-btn">Sign in with Google</button>
+    <button id="logout-btn" style="display:none;">Logout</button>
+    <div id="user-info"></div>
+  </div>
+
+  <!-- Firebase SDKs (v10 modular syntax) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK5X7a9It59rd4Sdac9fxH6bCkhZR62bE",
+      authDomain: "photosynthesis-arcade.firebaseapp.com",
+      projectId: "photosynthesis-arcade",
+      storageBucket: "photosynthesis-arcade.firebasestorage.app",
+      messagingSenderId: "912988711333",
+      appId: "1:912988711333:web:b964d63e4b27cc3708604c",
+      measurementId: "G-9CM26QYCJN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const userInfo = document.getElementById("user-info");
+    const gameLinks = document.getElementById("game-links");
+
+    const provider = new GoogleAuthProvider();
+
+    loginBtn.onclick = async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const email = result.user.email;
+        if (!email.endsWith("@harknessinstitute.com")) {
+          alert("⚠️ Only @harknessinstitute.com accounts are allowed.");
+          await signOut(auth);
+          return;
+        }
+      } catch (err) {
+        console.error("Error signing in:", err);
+        alert("Error signing in. Check console for details.");
+      }
+    };
+
+    logoutBtn.onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userInfo.textContent = `Signed in as ${user.displayName}`;
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        gameLinks.style.display = "flex";
+      } else {
+        userInfo.textContent = "";
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        gameLinks.style.display = "none";
+      }
+    });
+
+    console.log("✅ Firebase connected (Lobby)");
+  </script>
+</body>
+</html>
