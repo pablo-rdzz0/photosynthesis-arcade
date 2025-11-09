@@ -87,6 +87,25 @@ loginBtn.onclick = () => fs.signIn();
         gameLinks.style.display = "none";
       }
     });
+    // Tablero
+const snakeTop = document.getElementById("snakeTop");
+const lightTop = document.getElementById("lightTop");
+
+// Update leaderboard HTML
+function renderLeaderboard(container, rows) {
+  if (rows.length === 0) {
+    container.textContent = "No scores yet!";
+    return;
+  }
+  container.innerHTML = rows
+    .map((r, i) => `${i + 1}. ${r.userName || "Anonymous"} — ${r.score}`)
+    .join("<br>");
+}
+
+// Listen for top 10 updates
+fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
+fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
+
   </script>
 </body>
 </html>
