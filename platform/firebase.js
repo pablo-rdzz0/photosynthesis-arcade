@@ -74,7 +74,6 @@ window.firebaseStuff = {
         score,
         userEmail: user.email,
         userName: user.displayName,
-        createdAt: serverTimestamp(),
       });
     } catch (e) {
       console.error("Error saving score", e);
