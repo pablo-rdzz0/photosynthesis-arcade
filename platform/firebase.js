@@ -1,4 +1,3 @@
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
   getAuth,
@@ -95,4 +94,3 @@ window.firebaseStuff = {
     });
   },
 };
-</script>
