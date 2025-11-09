@@ -14,6 +14,8 @@
       background: radial-gradient(circle at top, #0f172a 0%, #166534 55%, #022c22 100%);
       font-family: system-ui, sans-serif;
       color: #fff;
+      padding: 22px 12px 110px;
+      box-sizing: border-box;
     }
     .card {
       background: rgba(15,23,42,0.5);
@@ -22,119 +24,191 @@
       padding: 26px 30px 28px;
       backdrop-filter: blur(10px);
       text-align: center;
-      width: min(420px, 92vw);
+      width: min(980px, 98vw);
       box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     }
     h1 { margin-top: 0; }
     .links {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 12px;
+      justify-content: center;
       margin-top: 18px;
     }
     a.lobby-link {
-      display: block;
+      display: inline-block;
       background: #bef264;
       color: #0f172a;
       text-decoration: none;
       padding: 10px 14px;
       border-radius: 999px;
       font-weight: 600;
+      transition: transform .2s ease, background .2s ease;
     }
-    a.lobby-link.secondary {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.12);
+    a.lobby-link:hover {
+      background: #d9f99d;
+      transform: translateY(-2px);
+    }
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
       color: #fff;
     }
-    p { opacity: .7; font-size: .9rem; }
-    #user-info { margin-top: 15px; font-size: .9rem; opacity: .85; }
-    button {
-      margin-top: 10px;
+    #user-info {
+      margin-top: 15px;
+      font-size: .9rem;
+      opacity: .85;
+    }
+    #leaderboards {
+      margin-top: 26px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .board {
+      background: rgba(15,23,42,0.35);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 14px;
+      padding: 14px 10px 10px;
+      text-align: left;
+    }
+    .board h2 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      font-size: .85rem;
+      padding: 4px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    li:last-child { border-bottom: none; }
+    small { opacity: .45; }
+    #login-btn, #logout-btn {
+      margin-top: 15px;
       padding: 8px 14px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
       font-weight: 600;
+      font-family: inherit;
     }
-    #login-btn { background: #bef264; color: #0f172a; }
-    #logout-btn { background: rgba(255,255,255,0.1); color: #fff; }
+    #login-btn {
+      background: #bef264;
+      color: #0f172a;
+    }
+    #logout-btn {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    #games-wrapper {
+      margin-top: 14px;
+    }
   </style>
+
+  <!-- Firebase module -->
+  <script type="module" src="./firebase.js"></script>
 </head>
 <body>
   <div class="card">
     <h1>🌿 Photosynthesis Arcade</h1>
-    <p>Pick a minigame to start.</p>
+    <p>Sign in with your <strong>@gmail.com</strong> account to play.</p>
 
-    <div class="links" id="game-links" style="display:none;">
-      <a class="lobby-link" href="platform/snake.html">Molecules Snake</a>
-      <a class="lobby-link secondary" href="platform/catchthelight.html">Catch the Light</a>
+    <!-- Game links (hidden until login) -->
+    <div id="games-wrapper" style="display:none;">
+      <div class="links">
+        <a class="lobby-link" href="snake.html">🐍 Molecules Snake</a>
+        <a class="lobby-link secondary" href="catchthelight.html">💨 Catch the Light (O₂)</a>
+      </div>
     </div>
 
     <button id="login-btn">Sign in with Google</button>
     <button id="logout-btn" style="display:none;">Logout</button>
     <div id="user-info"></div>
+
+    <!-- Leaderboards -->
+    <div id="leaderboards">
+      <div class="board">
+        <h2>🐍 Snake – Top 10</h2>
+        <ul id="snake-board">
+          <li><small>Loading...</small></li>
+        </ul>
+      </div>
+      <div class="board">
+        <h2>💨 Catch the Light – Top 10</h2>
+        <ul id="ctl-board">
+          <li><small>Loading...</small></li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <!-- Firebase SDKs (v10 modular syntax) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const fs = window.firebaseStuff;
+      if (!fs) return console.error("Firebase not loaded!");
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCK5X7a9It59rd4Sdac9fxH6bCkhZR62bE",
-      authDomain: "photosynthesis-arcade.firebaseapp.com",
-      projectId: "photosynthesis-arcade",
-      storageBucket: "photosynthesis-arcade.firebasestorage.app",
-      messagingSenderId: "912988711333",
-      appId: "1:912988711333:web:b964d63e4b27cc3708604c",
-      measurementId: "G-9CM26QYCJN"
-    };
+      const loginBtn = document.getElementById("login-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+      const userInfo = document.getElementById("user-info");
+      const gamesWrapper = document.getElementById("games-wrapper");
+      const snakeBoard = document.getElementById("snake-board");
+      const ctlBoard = document.getElementById("ctl-board");
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+      // 🔐 Auth Buttons
+      loginBtn.onclick = async () => {
+        await fs.signInHarkness();
+      };
+      logoutBtn.onclick = () => fs.signOutUser();
 
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const userInfo = document.getElementById("user-info");
-    const gameLinks = document.getElementById("game-links");
-
-    const provider = new GoogleAuthProvider();
-
-    loginBtn.onclick = async () => {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const email = result.user.email;
-        if (!email.endsWith("@harknessinstitute.com")) {
-          alert("⚠️ Only @harknessinstitute.com accounts are allowed.");
-          await signOut(auth);
-          return;
+      // 👀 Auth Listener
+      fs.onAuth((user) => {
+        if (user) {
+          userInfo.textContent = `Signed in as ${user.displayName || user.email}`;
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "inline-block";
+          gamesWrapper.style.display = "block";
+        } else {
+          userInfo.textContent = "";
+          loginBtn.style.display = "inline-block";
+          logoutBtn.style.display = "none";
+          gamesWrapper.style.display = "none";
         }
-      } catch (err) {
-        console.error("Error signing in:", err);
-        alert("Error signing in. Check console for details.");
-      }
-    };
+      });
 
-    logoutBtn.onclick = () => signOut(auth);
+      // 🏆 Leaderboard – Snake
+      fs.listenTop("snake", (rows) => {
+        snakeBoard.innerHTML = rows.length
+          ? rows
+              .map(
+                (r, i) =>
+                  `<li><span>${i + 1}. ${r.userName || r.userEmail || "Unknown"}</span><span>${r.score}</span></li>`
+              )
+              .join("")
+          : "<li><small>No scores yet</small></li>";
+      });
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        userInfo.textContent = `Signed in as ${user.displayName}`;
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        gameLinks.style.display = "flex";
-      } else {
-        userInfo.textContent = "";
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        gameLinks.style.display = "none";
-      }
+      // 🏆 Leaderboard – Catch the Light
+      fs.listenTop("catchthelight", (rows) => {
+        ctlBoard.innerHTML = rows.length
+          ? rows
+              .map(
+                (r, i) =>
+                  `<li><span>${i + 1}. ${r.userName || r.userEmail || "Unknown"}</span><span>${r.score}</span></li>`
+              )
+              .join("")
+          : "<li><small>No scores yet</small></li>";
+      });
     });
-
-    console.log("✅ Firebase connected (Lobby)");
   </script>
 </body>
 </html>
