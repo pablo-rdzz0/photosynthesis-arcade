@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Photosynthesis Arcade Lobby</title>
+  <title>Photosynthesis Arcade 🌿</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    /* === BACKGROUND ANIMATION === */
     body {
       margin: 0;
       min-height: 100vh;
@@ -12,51 +13,171 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, #0f172a 0%, #166534 55%, #022c22 100%);
-      font-family: system-ui, sans-serif;
-      color: #fff;
-      text-align: center;
+      background: radial-gradient(circle at top, #022c22 0%, #065f46 45%, #0f172a 100%);
+      background-size: 200% 200%;
+      animation: bgShift 16s ease-in-out infinite;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #ecfdf5;
+      overflow-x: hidden;
     }
+    @keyframes bgShift {
+      0% { background-position: 0 0; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0 0; }
+    }
+
+    /* === CONTAINER === */
+    #main {
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
+      padding: 40px 60px;
+      text-align: center;
+      animation: fadeIn 1.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 8px;
+      color: #bbf7d0;
+      text-shadow: 0 0 20px rgba(163, 230, 53, 0.4);
+    }
+    p {
+      color: #d1fae5;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    /* === BUTTONS === */
     button {
-      background: #bef264;
+      background: linear-gradient(90deg, #84cc16, #22c55e);
       border: none;
-      color: #0f172a;
-      font-weight: 600;
+      color: #042f2e;
+      font-weight: 700;
       border-radius: 999px;
-      padding: 10px 16px;
+      padding: 10px 18px;
       cursor: pointer;
       margin: 6px;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 14px rgba(132, 204, 22, 0.4);
     }
-    button:hover { background: #d9f99d; }
-    a {
-      display: block;
-      margin: 8px 0;
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 22px rgba(190, 242, 100, 0.6);
+    }
+
+    /* === GAME LINKS === */
+    #game-links {
+      display: none;
+      flex-direction: column;
+      margin-top: 18px;
+    }
+    #game-links a {
       text-decoration: none;
+      background: rgba(236, 253, 245, 0.08);
+      border: 1px solid rgba(190, 242, 100, 0.2);
       color: #bef264;
       font-weight: 600;
+      margin: 6px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
     }
-    #game-links { display: none; margin-top: 16px; }
+    #game-links a:hover {
+      background: rgba(163, 230, 53, 0.2);
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(163, 230, 53, 0.35);
+    }
+
+    /* === USER INFO === */
+    #user-info {
+      margin-top: 10px;
+      font-size: 1rem;
+      opacity: 0.9;
+      color: #bbf7d0;
+    }
+
+    /* === LEADERBOARDS === */
+    #leaderboards {
+      margin-top: 40px;
+      text-align: left;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 24px 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+    #leaderboards h3 {
+      margin: 14px 0 6px;
+      font-size: 1.2rem;
+      color: #a3e635;
+      text-shadow: 0 0 10px rgba(163, 230, 53, 0.3);
+    }
+    #leaderboards div {
+      font-size: 0.95rem;
+      color: #f0fdf4;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    /* === GLOWY PARTICLES === */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(190, 242, 100, 0.5);
+      border-radius: 50%;
+      animation: floaty 8s ease-in-out infinite;
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.7; }
+      50% { transform: translateY(-20px) scale(1.3); opacity: 1; }
+    }
   </style>
 </head>
+
 <body>
-  <h1>🌿 Photosynthesis Arcade</h1>
-  <p>Sign in with your @gmail.com account to play.</p>
+  <div id="main">
+    <h1>🌿 Photosynthesis Arcade</h1>
+    <p>Sign in with your <strong>@gmail.com</strong> account to play.</p>
 
-  <div id="game-links">
-    <a href="snake.html">🐍 Molecules Snake</a>
-    <a href="catchthelight.html">💨 Catch the Light (O₂)</a>
+    <div id="game-links">
+      <a href="snake.html">🐍 Molecules Snake</a>
+      <a href="catchthelight.html">💨 Catch the Light (O₂)</a>
+    </div>
+
+    <button id="login-btn">Sign in with Google</button>
+    <button id="logout-btn" style="display:none;">Logout</button>
+
+    <div id="user-info"></div>
+
+    <div id="leaderboards">
+      <h3>🐍 Snake – Top 10</h3>
+      <div id="snakeTop">Loading...</div>
+
+      <h3>💨 Catch the Light – Top 10</h3>
+      <div id="lightTop">Loading...</div>
+    </div>
   </div>
 
-  <button id="login-btn">Sign in with Google</button>
-  <button id="logout-btn" style="display:none;">Logout</button>
-  <div id="user-info"></div>
-
-  <div id="leaderboards">
-    <h3>🐍 Snake – Top 10</h3>
-    <div id="snakeTop">Loading...</div>
-    <h3>💨 Catch the Light – Top 10</h3>
-    <div id="lightTop">Loading...</div>
-  </div>
+  <!-- Light particles -->
+  <script>
+    for (let i = 0; i < 14; i++) {
+      const dot = document.createElement("div");
+      dot.className = "particle";
+      dot.style.left = Math.random() * 100 + "vw";
+      dot.style.top = Math.random() * 100 + "vh";
+      dot.style.animationDelay = Math.random() * 8 + "s";
+      document.body.appendChild(dot);
+    }
+  </script>
 
   <!-- ✅ Firebase setup (shared script) -->
   <script type="module" src="firebase.js"></script>
@@ -70,8 +191,7 @@
     const userInfo = document.getElementById("user-info");
     const gameLinks = document.getElementById("game-links");
 
-loginBtn.onclick = () => fs.signIn();
-
+    loginBtn.onclick = () => fs.signIn();
     logoutBtn.onclick = () => fs.signOut();
 
     fs.onAuth((user) => {
@@ -87,25 +207,28 @@ loginBtn.onclick = () => fs.signIn();
         gameLinks.style.display = "none";
       }
     });
-    // Tablero
-const snakeTop = document.getElementById("snakeTop");
-const lightTop = document.getElementById("lightTop");
 
-// Update leaderboard HTML
-function renderLeaderboard(container, rows) {
-  if (rows.length === 0) {
-    container.textContent = "No scores yet!";
-    return;
-  }
-  container.innerHTML = rows
-    .map((r, i) => `${i + 1}. ${r.userName || "Anonymous"} — ${r.score}`)
-    .join("<br>");
-}
+    // Leaderboard logic
+    const snakeTop = document.getElementById("snakeTop");
+    const lightTop = document.getElementById("lightTop");
 
-// Listen for top 10 updates
-fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
-fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
+    function renderLeaderboard(container, rows) {
+      if (rows.length === 0) {
+        container.textContent = "No scores yet!";
+        return;
+      }
+      container.innerHTML = rows
+        .map((r, i) =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;">
+            <span>${i + 1}. ${r.userName || "Anonymous"}</span>
+            <span style="color:#bbf7d0;font-weight:600;">${r.score}</span>
+          </div>`
+        )
+        .join("");
+    }
 
+    fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
+    fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
   </script>
 </body>
 </html>
