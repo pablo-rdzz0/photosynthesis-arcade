@@ -5,13 +5,12 @@
 <title>Catch the Light 🌞 | Light-Dependent Reactions</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style>
-/* (tus estilos originales) */
-:root{
+:root {
   --hud-bg: rgba(9, 12, 20, 0.55);
   --hud-border: rgba(255,255,255,0.08);
   --text: #fff;
 }
-html,body{
+html,body {
   margin:0;
   height:100%;
   width:100%;
@@ -34,7 +33,7 @@ html,body{
   cursor: pointer;
   font-weight: 600;
 }
-#hud{
+#hud {
   position: fixed;
   top: 18px;
   left: 50%;
@@ -51,23 +50,23 @@ html,body{
   z-index: 10;
   box-shadow: 0 18px 30px rgba(0,0,0,0.25);
 }
-.hud-item{
+.hud-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1.1;
 }
-.hud-label{
+.hud-label {
   font-size: 11px;
   text-transform: uppercase;
   opacity: 0.6;
   letter-spacing: .08em;
 }
-.hud-value{
+.hud-value {
   font-size: 20px;
   font-weight: 700;
 }
-#energyBarOuter{
+#energyBarOuter {
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -82,18 +81,18 @@ html,body{
   box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   z-index: 5;
 }
-#energyBarInner{
+#energyBarInner {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #f97316 0%, #facc15 40%, #bbf7d0 100%);
   transition: width .1s ease-out;
 }
-canvas{
+canvas {
   display:block;
   width:100%;
   height:100%;
 }
-#flash{
+#flash {
   position:fixed;
   inset:0;
   background:rgba(160,0,0,0.35);
@@ -102,7 +101,7 @@ canvas{
   transition:opacity .25s ease-out;
   z-index:50;
 }
-.endOverlay, .tryhardOverlay{
+.endOverlay, .tryhardOverlay {
   position:fixed;
   inset:0;
   background:rgba(5,13,18,0.78);
@@ -115,7 +114,7 @@ canvas{
   z-index:200;
   text-align:center;
 }
-.endOverlay button{
+.endOverlay button {
   margin-top: 12px;
   background: #facc15;
   border: none;
@@ -127,7 +126,7 @@ canvas{
 }
 </style>
 
-<!-- firebase.js -->
+<!-- Firebase -->
 <script type="module" src="./firebase.js"></script>
 </head>
 <body>
@@ -153,20 +152,21 @@ canvas{
     <span class="hud-value" id="energy">0%</span>
   </div>
 </div>
+
 <div id="energyBarOuter"><div id="energyBarInner"></div></div>
 <canvas id="game"></canvas>
 <div id="flash"></div>
 
 <script>
 let firebaseUser = null;
+
+// 🔥 Firebase Auth Check
 window.addEventListener("DOMContentLoaded", () => {
   const fs = window.firebaseStuff;
-  if (!fs) return;
+  if (!fs) return console.error("Firebase not loaded!");
   fs.onAuth((user) => {
     firebaseUser = user;
-    if (!user) {
-      window.location.href = "index.html";
-    }
+    if (!user) window.location.href = "index.html";
   });
 });
 
@@ -189,22 +189,11 @@ function resize(){
 window.addEventListener("resize", resize);
 resize();
 
-let player;
-let photons = [];
-let waters = [];
-let pollutants = [];
-let bubbles = [];
-let score = 0;
-let energy = 0;
-let o2Count = 0;
-let timeLeft = 30;
+let player, photons, waters, pollutants, bubbles;
+let score, energy, o2Count, timeLeft;
 let keys = {};
-let speedMultiplier = 1.6;
-let pollutionPenalty = 0;
-let gameOver = false;
-let tryhard = false;
-let paused = false;
-let plantPulse = 0;
+let speedMultiplier, pollutionPenalty;
+let gameOver, tryhard, paused, plantPulse;
 
 function initGame(){
   player = { x: W/2, y: H - 110, w: 110, h: 90, speed: 9 };
@@ -221,15 +210,13 @@ function initGame(){
   gameOver = false;
   tryhard = false;
   paused = false;
+  plantPulse = 0;
   scoreEl.textContent = "0";
   energyEl.textContent = "0%";
   o2El.textContent = "0";
   timeEl.textContent = "30";
   bar.style.width = "0%";
-  const end = document.querySelector(".endOverlay");
-  if (end) end.remove();
-  const th = document.querySelector(".tryhardOverlay");
-  if (th) th.remove();
+  document.querySelectorAll(".endOverlay, .tryhardOverlay").forEach(el => el.remove());
 }
 
 function drawBackground(){
@@ -250,19 +237,17 @@ function drawBackground(){
     ctx.fill();
   }
 }
-function drawPlayer() {
-  const { x, y, w, h } = player;
-  if (plantImg.complete && plantImg.naturalWidth > 0) {
-    const imgW = w * 1.35;
-    const imgH = h * 1.35;
-    ctx.drawImage(plantImg, x - imgW / 2, y - imgH / 2, imgW, imgH);
-  } else {
+function drawPlayer(){
+  const {x,y,w,h} = player;
+  if (plantImg.complete && plantImg.naturalWidth > 0)
+    ctx.drawImage(plantImg, x - w*0.7, y - h*0.7, w*1.4, h*1.4);
+  else {
     const g = ctx.createLinearGradient(x - w/2, y, x + w/2, y + h/2);
     g.addColorStop(0,"#15803d");
     g.addColorStop(1,"#4ade80");
     ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.ellipse(x, y, w/2, h/2, 0, 0, Math.PI*2);
+    ctx.ellipse(x,y,w/2,h/2,0,0,Math.PI*2);
     ctx.fill();
   }
 }
@@ -299,40 +284,12 @@ function drawSmoke(x,y,r){
   ctx.arc(x,y,r,0,Math.PI*2);
   ctx.fill();
 }
-function spawnPhoton(){
-  photons.push({
-    x: Math.random()*W,
-    y: -40,
-    r: 30,
-    speed: (4 + Math.random()*2) * speedMultiplier
-  });
-}
-function spawnWater(){
-  waters.push({
-    x: Math.random()*W,
-    y: -40,
-    size: 20,
-    speed: (3 + Math.random()*2) * speedMultiplier
-  });
-}
-function spawnPollutant(){
-  pollutants.push({
-    x: Math.random()*W,
-    y: -60,
-    r: 36,
-    speed: (3 + Math.random()*2) * speedMultiplier
-  });
-}
-function updateObjects(arr){
-  for (const o of arr) o.y += o.speed;
-  return arr.filter(o => o.y < H + 60);
-}
 function flashRed(){
   flash.style.opacity = "1";
   setTimeout(()=>flash.style.opacity="0", 250);
 }
 function photosynthesisBurst(){
-  for (let i=0;i<10;i++){
+  for(let i=0;i<10;i++){
     bubbles.push({
       x: player.x + (Math.random()*60 - 30),
       y: player.y - 20,
@@ -344,53 +301,10 @@ function photosynthesisBurst(){
 function showTryhardOverlay(){
   const overlay = document.createElement("div");
   overlay.className = "tryhardOverlay";
-  overlay.innerHTML = `
-    <h2>You Have Entered The Tryhard Zone</h2>
-    <p>Pollutants now take 10 seconds off.</p>
-    <p>Good luck.</p>
-  `;
+  overlay.innerHTML = `<h2>You Have Entered The Tryhard Zone</h2><p>Pollutants now take 10 seconds off.</p><p>Good luck.</p>`;
   document.body.appendChild(overlay);
-  setTimeout(()=>{
-    overlay.remove();
-    paused = false;
-  }, 3000);
+  setTimeout(()=>{overlay.remove(); paused=false;}, 3000);
 }
-function checkCollisions(arr, type){
-  for (let i=arr.length-1; i>=0; i--){
-    const o = arr[i];
-    if (Math.abs(o.x - player.x) < player.w*0.45 &&
-        Math.abs(o.y - player.y) < player.h*0.45) {
-      arr.splice(i,1);
-
-      if (type === "photon") {
-        score++;
-        energy += 5;
-        timeLeft += 1;
-      } else if (type === "water") {
-        energy += 10;
-        timeLeft += 1;
-      } else if (type === "pollutant") {
-        energy = Math.max(energy - 25, 0);
-        timeLeft -= (tryhard ? 10 : 5);
-        pollutionPenalty = 180;
-        flashRed();
-      }
-
-      if (energy >= 100) {
-        energy = 0;
-        o2Count++;
-        speedMultiplier *= 1.15;
-        photosynthesisBurst();
-        if (!tryhard && o2Count >= 8) {
-          tryhard = true;
-          paused = true;
-          showTryhardOverlay();
-        }
-      }
-    }
-  }
-}
-
 function showEndOverlay(){
   const overlay = document.createElement("div");
   overlay.className = "endOverlay";
@@ -400,15 +314,10 @@ function showEndOverlay(){
     <button id="restartBtn">Play again</button>
   `;
   document.body.appendChild(overlay);
-  document.getElementById("restartBtn").onclick = ()=> {
-    overlay.remove();
-    initGame();
-  };
+  document.getElementById("restartBtn").onclick = ()=>{overlay.remove(); initGame();};
 }
-
 async function endGame(){
   gameOver = true;
-  // guardar en firestore
   const fs = window.firebaseStuff;
   if (fs && firebaseUser) {
     await fs.saveScore({
@@ -419,77 +328,62 @@ async function endGame(){
   }
   showEndOverlay();
 }
-
-function update(){
-  if (gameOver) return;
-  if (paused) return;
-
-  if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
-  if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
-  player.x = Math.max(player.w/2, Math.min(W - player.w/2, player.x));
-
-  if (pollutionPenalty > 0) pollutionPenalty--;
-
-  const photonChance = (pollutionPenalty > 0 ? 0.015 : 0.03) * speedMultiplier;
-  const waterChance  = (pollutionPenalty > 0 ? 0.007 : 0.015) * speedMultiplier;
-  const pollutantChance = tryhard ? 0.07 : 0.035;
-
-  if (Math.random() < photonChance) spawnPhoton();
-  if (Math.random() < waterChance) spawnWater();
-  if (Math.random() < pollutantChance) spawnPollutant();
-
-  photons    = updateObjects(photons);
-  waters     = updateObjects(waters);
-  pollutants = updateObjects(pollutants);
-
-  checkCollisions(photons, "photon");
-  checkCollisions(waters, "water");
-  checkCollisions(pollutants, "pollutant");
-
-  for (const b of bubbles) b.y -= b.speed;
-  bubbles = bubbles.filter(b => b.y > -40);
-
-  timeLeft -= 1/60;
-  if (timeLeft <= 0) {
-    timeLeft = 0;
-    endGame();
-  }
-
-  timeEl.textContent = Math.ceil(timeLeft);
-  scoreEl.textContent = score;
-  energyEl.textContent = Math.floor(energy) + "%";
-  o2El.textContent = o2Count;
-  bar.style.width = energy + "%";
+function updateObjects(arr){
+  for(const o of arr) o.y += o.speed;
+  return arr.filter(o => o.y < H + 60);
 }
-
+function spawnPhoton(){ photons.push({x:Math.random()*W,y:-40,r:30,speed:(4+Math.random()*2)*speedMultiplier}); }
+function spawnWater(){ waters.push({x:Math.random()*W,y:-40,size:20,speed:(3+Math.random()*2)*speedMultiplier}); }
+function spawnPollutant(){ pollutants.push({x:Math.random()*W,y:-60,r:36,speed:(3+Math.random()*2)*speedMultiplier}); }
+function checkCollisions(arr,type){
+  for(let i=arr.length-1;i>=0;i--){
+    const o=arr[i];
+    if(Math.abs(o.x-player.x)<player.w*0.45 && Math.abs(o.y-player.y)<player.h*0.45){
+      arr.splice(i,1);
+      if(type==="photon"){score++;energy+=5;timeLeft+=1;}
+      else if(type==="water"){energy+=10;timeLeft+=1;}
+      else if(type==="pollutant"){energy=Math.max(energy-25,0);timeLeft-=(tryhard?10:5);pollutionPenalty=180;flashRed();}
+      if(energy>=100){energy=0;o2Count++;speedMultiplier*=1.15;photosynthesisBurst();if(!tryhard&&o2Count>=8){tryhard=true;paused=true;showTryhardOverlay();}}
+    }
+  }
+}
+function update(){
+  if(gameOver||paused) return;
+  if(keys["ArrowLeft"]||keys["a"]) player.x-=player.speed;
+  if(keys["ArrowRight"]||keys["d"]) player.x+=player.speed;
+  player.x=Math.max(player.w/2,Math.min(W-player.w/2,player.x));
+  if(pollutionPenalty>0) pollutionPenalty--;
+  if(Math.random()<0.03*speedMultiplier) spawnPhoton();
+  if(Math.random()<0.015*speedMultiplier) spawnWater();
+  if(Math.random()<(tryhard?0.07:0.035)) spawnPollutant();
+  photons=updateObjects(photons);
+  waters=updateObjects(waters);
+  pollutants=updateObjects(pollutants);
+  checkCollisions(photons,"photon");
+  checkCollisions(waters,"water");
+  checkCollisions(pollutants,"pollutant");
+  for(const b of bubbles) b.y-=b.speed;
+  bubbles=bubbles.filter(b=>b.y>-40);
+  timeLeft-=1/60;
+  if(timeLeft<=0){timeLeft=0;endGame();}
+  timeEl.textContent=Math.ceil(timeLeft);
+  scoreEl.textContent=score;
+  energyEl.textContent=Math.floor(energy)+"%";
+  o2El.textContent=o2Count;
+  bar.style.width=energy+"%";
+}
 function draw(){
   ctx.clearRect(0,0,W,H);
   drawBackground();
-  for (const p of photons) drawSunOrb(p.x, p.y, p.r);
-  for (const w of waters) drawWater(w.x, w.y, w.size);
-  for (const po of pollutants) drawSmoke(po.x, po.y, po.r);
-  plantPulse += 0.04;
+  for(const p of photons) drawSunOrb(p.x,p.y,p.r);
+  for(const w of waters) drawWater(w.x,w.y,w.size);
+  for(const po of pollutants) drawSmoke(po.x,po.y,po.r);
   drawPlayer();
-  for (const b of bubbles){
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.fill();
-  }
+  for(const b of bubbles){ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,0.7)";ctx.fill();}
 }
-function loop(){
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-
-window.addEventListener("keydown", e => {
-  keys[e.key] = true;
-});
-window.addEventListener("keyup", e => {
-  keys[e.key] = false;
-});
-
+function loop(){update();draw();requestAnimationFrame(loop);}
+window.addEventListener("keydown", e=>keys[e.key]=true);
+window.addEventListener("keyup", e=>keys[e.key]=false);
 initGame();
 loop();
 </script>
