@@ -124,13 +124,68 @@ canvas {
   cursor: pointer;
   color: #0f172a;
 }
+
+/* 🌞 Welcome Modal Styles */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: #fffbea;
+  color: #0f766e;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  max-width: 520px;
+  width: 85%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  animation: fadeIn 0.4s ease;
+}
+.modal-content h2 { margin-top: 0; }
+.modal button {
+  background: #facc15;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  color: #0f172a;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 🆘 Help Button */
+#help-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #facc15;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+#help-btn:hover { background: #fde047; }
 </style>
 
 <!-- Firebase -->
-<!-- ✅ Global Firebase -->
 <script type="module" src="firebase.js"></script>
-
 </head>
+
 <body>
 <div id="topbar">
   <button id="back-btn" onclick="window.location.href='index.html'">← Back to Lobby</button>
@@ -158,6 +213,39 @@ canvas {
 <div id="energyBarOuter"><div id="energyBarInner"></div></div>
 <canvas id="game"></canvas>
 <div id="flash"></div>
+
+<!-- 🌞 Welcome Modal -->
+<div id="welcomeModal" class="modal">
+  <div class="modal-content">
+    <h2>🌞 Welcome to Catch the Light!</h2>
+    <p>
+      Help your plant perform <b>photosynthesis</b> by catching <b>light photons</b> ☀️
+      and <b>water droplets</b> 💧 while avoiding pollutants ⚫.
+    </p>
+    <p>
+      Every time you gather enough energy, your plant releases <b>oxygen (O₂)</b> —
+      just like in the <b>light-dependent reactions</b> that happen inside chloroplasts.
+    </p>
+
+    <h3>🎯 Your Goals</h3>
+    <ul style="text-align:left;">
+      <li>☀️ Catch <b>light</b> → creates ATP & NADPH (energy)</li>
+      <li>💧 Catch <b>water</b> → releases oxygen (O₂)</li>
+      <li>⚫ Avoid <b>pollutants</b> → they drain energy</li>
+      <li>🌱 Try to release as much O₂ as possible before time runs out!</li>
+    </ul>
+
+    <p style="font-style:italic; color:#0f766e;">
+      🧠 Educational Value: This game models the <b>light-dependent reactions</b> of
+      photosynthesis — showing how plants convert sunlight and water into energy and oxygen.
+    </p>
+
+    <button id="startGameBtn">Start Game</button>
+  </div>
+</div>
+
+<!-- 🆘 Help Button -->
+<button id="help-btn">?</button>
 
 <script>
 let firebaseUser = null;
@@ -357,37 +445,5 @@ function update(){
   if(pollutionPenalty>0) pollutionPenalty--;
   if(Math.random()<0.03*speedMultiplier) spawnPhoton();
   if(Math.random()<0.015*speedMultiplier) spawnWater();
-  if(Math.random()<(tryhard?0.07:0.035)) spawnPollutant();
-  photons=updateObjects(photons);
-  waters=updateObjects(waters);
-  pollutants=updateObjects(pollutants);
-  checkCollisions(photons,"photon");
-  checkCollisions(waters,"water");
-  checkCollisions(pollutants,"pollutant");
-  for(const b of bubbles) b.y-=b.speed;
-  bubbles=bubbles.filter(b=>b.y>-40);
-  timeLeft-=1/60;
-  if(timeLeft<=0){timeLeft=0;endGame();}
-  timeEl.textContent=Math.ceil(timeLeft);
-  scoreEl.textContent=score;
-  energyEl.textContent=Math.floor(energy)+"%";
-  o2El.textContent=o2Count;
-  bar.style.width=energy+"%";
-}
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  drawBackground();
-  for(const p of photons) drawSunOrb(p.x,p.y,p.r);
-  for(const w of waters) drawWater(w.x,w.y,w.size);
-  for(const po of pollutants) drawSmoke(po.x,po.y,po.r);
-  drawPlayer();
-  for(const b of bubbles){ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,0.7)";ctx.fill();}
-}
-function loop(){update();draw();requestAnimationFrame(loop);}
-window.addEventListener("keydown", e=>keys[e.key]=true);
-window.addEventListener("keyup", e=>keys[e.key]=false);
-initGame();
-loop();
-</script>
-</body>
-</html>
+  if(Math.random()<(
+
