@@ -5,167 +5,171 @@
   <title>Photosynthesis Arcade 🌿</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    /* --- Organic Forest-Energy Theme --- */
-    :root {
-      --lime: #bef264;
-      --forest1: #0f172a;
-      --forest2: #14532d;
-      --forest3: #0f766e;
-      --white: #f8fafc;
-      --glass: rgba(255, 255, 255, 0.08);
-      --blur: blur(14px);
-    }
-
+    /* 🌿 Global aesthetic */
     html, body {
       margin: 0;
-      padding: 0;
       height: 100%;
-      font-family: system-ui, sans-serif;
-      background: radial-gradient(circle at top, var(--forest1) 0%, var(--forest2) 45%, var(--forest3) 100%);
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      animation: hueShift 20s infinite alternate ease-in-out;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #e8ffe9;
+      overflow-x: hidden;
+      background: radial-gradient(circle at top, #022c22 0%, #064e3b 40%, #0d9488 100%);
+      background-size: 200% 200%;
+      animation: bgShift 18s ease-in-out infinite;
     }
 
-    @keyframes hueShift {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(15deg); }
-    }
-
-    /* Floating particles */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 180px 180px;
-      opacity: 0.25;
-      animation: float 60s linear infinite;
-    }
-    @keyframes float {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-200px, -200px); }
-    }
-
-    /* Main container */
-    .panel {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--glass);
-      border-radius: 20px;
-      padding: 40px 50px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      backdrop-filter: var(--blur);
-      max-width: 600px;
-      width: 90%;
-      z-index: 1;
-      animation: fadeIn 1.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes bgShift {
+      0%,100% { background-position: 0 0; }
+      50% { background-position: 100% 100%; }
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.4em;
-      color: var(--lime);
-      text-shadow: 0 0 18px rgba(190,242,100,0.4);
+      font-size: 2.8rem;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #bbf7d0, #86efac, #a3e635);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleGlow 5s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 4px #84cc16); }
+      to { filter: drop-shadow(0 0 10px #bef264); }
     }
 
     p {
-      opacity: 0.8;
-      margin-bottom: 18px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
+      opacity: 0.85;
+      margin-bottom: 24px;
     }
 
+    /* 🌿 Main container */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 60px 16px;
+      min-height: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    /* 🫧 Decorative floating lights */
+    .bubble {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(190, 242, 100, 0.3);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-40px) scale(1.4); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 0.8; }
+    }
+
+    /* 🌿 Buttons */
     button {
-      background: var(--lime);
-      color: #0f172a;
-      font-weight: 600;
+      background: linear-gradient(135deg, #a3e635, #65a30d);
       border: none;
+      color: #0f172a;
+      font-weight: 700;
       border-radius: 999px;
-      padding: 10px 18px;
-      margin: 8px;
+      padding: 12px 22px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      margin: 6px;
+      font-size: 1rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 12px rgba(163, 230, 53, 0.4);
     }
 
     button:hover {
-      background: #d9f99d;
-      transform: scale(1.05);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 18px rgba(190, 242, 100, 0.8);
+      background: linear-gradient(135deg, #bef264, #4d7c0f);
+    }
+
+    /* 🌿 Links to games */
+    #game-links {
+      display: none;
+      flex-direction: column;
+      margin: 20px 0 30px;
+      gap: 10px;
     }
 
     a {
-      display: inline-block;
-      margin: 8px 12px;
+      display: block;
+      padding: 12px 22px;
       text-decoration: none;
-      color: var(--lime);
+      color: #bbf7d0;
       font-weight: 600;
-      font-size: 1.1rem;
-      transition: 0.25s ease;
+      border: 1px solid rgba(190, 242, 100, 0.25);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
     }
 
     a:hover {
-      text-shadow: 0 0 12px rgba(190,242,100,0.6);
-      transform: scale(1.05);
+      background: rgba(190, 242, 100, 0.15);
+      color: #fff;
+      transform: scale(1.03);
+      box-shadow: 0 0 14px rgba(190, 242, 100, 0.3);
     }
 
-    #game-links {
-      display: none;
-      margin: 20px 0;
+    /* 🌿 Panels */
+    #leaderboards {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(20px);
+      max-width: 480px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+      animation: panelFade 0.8s ease-out;
+    }
+
+    @keyframes panelFade {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h3 {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      color: #d9f99d;
+      text-shadow: 0 0 10px rgba(190, 242, 100, 0.4);
+    }
+
+    .score-entry {
+      margin: 4px 0;
+      background: rgba(190, 242, 100, 0.1);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .score-entry:hover {
+      background: rgba(190, 242, 100, 0.2);
+      transform: translateX(4px);
     }
 
     #user-info {
-      margin-top: 8px;
-      font-weight: 500;
-      opacity: 0.9;
-    }
-
-    /* Leaderboard section */
-    #leaderboards {
-      margin-top: 30px;
-      text-align: left;
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 20px 24px;
-      box-shadow: inset 0 0 40px rgba(255,255,255,0.04);
-    }
-
-    #leaderboards h3 {
-      color: var(--lime);
-      margin-bottom: 8px;
-      text-shadow: 0 0 12px rgba(190,242,100,0.3);
-    }
-
-    #leaderboards div {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-bottom: 14px;
-      white-space: pre-line;
-    }
-
-    /* Highlight top score */
-    #leaderboards div:first-of-type span:first-child {
-      color: #fff;
-      font-weight: bold;
-      text-shadow: 0 0 8px var(--lime);
-    }
-
-    @media (max-width: 600px) {
-      .panel { padding: 28px 26px; }
-      h1 { font-size: 2rem; }
+      margin-top: 10px;
+      opacity: 0.85;
     }
   </style>
 </head>
 <body>
-  <div class="panel">
+  <div class="container">
     <h1>🌿 Photosynthesis Arcade</h1>
-    <p>Sign in with your <strong>@gmail.com</strong> account to play and climb the leaderboard!</p>
+    <p>Sign in with your @gmail.com account to play and track your top scores!</p>
 
     <div id="game-links">
       <a href="snake.html">🐍 Molecules Snake</a>
@@ -183,14 +187,21 @@
       <h3>💨 Catch the Light – Top 10</h3>
       <div id="lightTop">Loading...</div>
     </div>
+
+    <!-- Floating light particles -->
+    <div class="bubble" style="top:10%; left:15%; animation-delay:0s;"></div>
+    <div class="bubble" style="top:30%; left:70%; animation-delay:2s;"></div>
+    <div class="bubble" style="top:60%; left:40%; animation-delay:4s;"></div>
+    <div class="bubble" style="top:80%; left:80%; animation-delay:6s;"></div>
   </div>
 
-  <!-- ✅ Firebase setup -->
+  <!-- ✅ Firebase setup (shared script) -->
   <script type="module" src="firebase.js"></script>
 
-  <!-- ✅ Logic -->
+  <!-- ✅ Lobby logic -->
   <script type="module">
     const fs = window.firebaseStuff;
+
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const userInfo = document.getElementById("user-info");
@@ -206,7 +217,7 @@
         userInfo.textContent = `Signed in as ${user.displayName}`;
         loginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
-        gameLinks.style.display = "block";
+        gameLinks.style.display = "flex";
       } else {
         userInfo.textContent = "";
         loginBtn.style.display = "inline-block";
@@ -215,14 +226,17 @@
       }
     });
 
+    // 🌿 Leaderboard rendering
     function renderLeaderboard(container, rows) {
       if (rows.length === 0) {
         container.textContent = "No scores yet!";
         return;
       }
       container.innerHTML = rows
-        .map((r, i) => `<span>${i + 1}. ${r.userName || "Anonymous"} — ${r.score}</span>`)
-        .join("<br>");
+        .map((r, i) =>
+          `<div class='score-entry'>${i + 1}. <b>${r.userName || "Anonymous"}</b> — ${r.score}</div>`
+        )
+        .join("");
     }
 
     fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
