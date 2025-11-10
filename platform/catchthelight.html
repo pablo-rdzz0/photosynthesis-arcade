@@ -445,5 +445,70 @@ function update(){
   if(pollutionPenalty>0) pollutionPenalty--;
   if(Math.random()<0.03*speedMultiplier) spawnPhoton();
   if(Math.random()<0.015*speedMultiplier) spawnWater();
-  if(Math.random()<(
+  if(Math.random()<(tryhard?0.07:0.035)) spawnPollutant();
+      photons=updateObjects(photons);
+  waters=updateObjects(waters);
+  pollutants=updateObjects(pollutants);
+  checkCollisions(photons,"photon");
+  checkCollisions(waters,"water");
+  checkCollisions(pollutants,"pollutant");
+  for(const b of bubbles) b.y-=b.speed;
+  bubbles=bubbles.filter(b=>b.y>-40);
+  timeLeft-=1/60;
+  if(timeLeft<=0){timeLeft=0;endGame();}
+  timeEl.textContent=Math.ceil(timeLeft);
+  scoreEl.textContent=score;
+  energyEl.textContent=Math.floor(energy)+"%";
+  o2El.textContent=o2Count;
+  bar.style.width=energy+"%";
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  drawBackground();
+  for(const p of photons) drawSunOrb(p.x,p.y,p.r);
+  for(const w of waters) drawWater(w.x,w.y,w.size);
+  for(const po of pollutants) drawSmoke(po.x,po.y,po.r);
+  drawPlayer();
+  for(const b of bubbles){
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.7)";
+    ctx.fill();
+  }
+}
+
+function loop(){
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener("keydown", e=>keys[e.key]=true);
+window.addEventListener("keyup", e=>keys[e.key]=false);
+
+// 🌞 Welcome Modal Logic + Help Button Integration
+const modal = document.getElementById("welcomeModal");
+const startBtn = document.getElementById("startGameBtn");
+const helpBtn = document.getElementById("help-btn");
+
+startBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+  initGame();
+  loop();
+});
+
+helpBtn.addEventListener("click", () => {
+  paused = true;
+  modal.style.display = "flex";
+});
+
+// Close modal again when user restarts
+window.onload = () => {
+  modal.style.display = "flex";
+};
+</script>
+</body>
+</html>
+
 
