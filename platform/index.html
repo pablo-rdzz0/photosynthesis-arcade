@@ -216,52 +216,65 @@
     <div class="bubble" style="top:80%; left:80%; animation-delay:6s;"></div>
   </div>
 
-  <!-- ✅ Firebase setup (shared script) -->
-  <script type="module" src="firebase.js"></script>
+<!-- ✅ Firebase setup -->
+<script type="module" src="firebase.js"></script>
 
-  <!-- ✅ Lobby logic -->
-  <script type="module">
-    const fs = window.firebaseStuff;
+<!-- ✅ Lobby logic -->
+<script type="module">
+  const fs = window.firebaseStuff;
 
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const userInfo = document.getElementById("user-info");
-    const gameLinks = document.getElementById("game-links");
-    const snakeTop = document.getElementById("snakeTop");
-    const lightTop = document.getElementById("lightTop");
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const userInfo = document.getElementById("user-info");
+  const gameLinks = document.getElementById("game-links");
+  const snakeTop = document.getElementById("snakeTop");
+  const lightTop = document.getElementById("lightTop");
 
-    loginBtn.onclick = () => fs.signIn();
-    logoutBtn.onclick = () => fs.signOut();
+  let currentUser = null;
 
-    fs.onAuth((user) => {
-      if (user) {
-        userInfo.textContent = `Signed in as ${user.displayName}`;
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        gameLinks.style.display = "flex";
-      } else {
-        userInfo.textContent = "";
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        gameLinks.style.display = "none";
-      }
-    });
+  // 🔐 Auth control
+  loginBtn.onclick = () => fs.signIn();
+  logoutBtn.onclick = () => fs.signOut();
 
-    // 🌿 Leaderboard rendering
-    function renderLeaderboard(container, rows) {
-      if (rows.length === 0) {
-        container.textContent = "No scores yet!";
-        return;
-      }
-      container.innerHTML = rows
-        .map((r, i) =>
-          `<div class='score-entry'>${i + 1}. <b>${r.userName || "Anonymous"}</b> — ${r.score}</div>`
-        )
-        .join("");
+  fs.onAuth((user) => {
+    currentUser = user;
+    if (user) {
+      userInfo.textContent = `Signed in as ${user.displayName}`;
+      loginBtn.style.display = "none";
+      logoutBtn.style.display = "inline-block";
+      gameLinks.style.display = "flex";
+    } else {
+      userInfo.textContent = "";
+      loginBtn.style.display = "inline-block";
+      logoutBtn.style.display = "none";
+      gameLinks.style.display = "none";
+    }
+  });
+
+  // 🌿 Leaderboard rendering
+  function renderLeaderboard(container, rows) {
+    if (rows.length === 0) {
+      container.textContent = "No scores yet!";
+      return;
     }
 
-    fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
-    fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
-  </script>
+    container.innerHTML = rows
+      .map((r, i) => {
+        const rank = i + 1;
+        const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
+        const isUser = currentUser && r.userEmail === currentUser.email;
+        const style = isUser ? "color:#22c55e;font-weight:bold;" : "";
+        return `<div class="score-entry" style="${style}">
+          ${medal} <b>${r.userName || "Anonymous"}</b> — ${r.score}
+        </div>`;
+      })
+      .join("");
+  }
+
+  // 🎮 Live leaderboards
+  fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
+  fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
+</script>
+
 </body>
 </html>
