@@ -2,178 +2,170 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🌿 Photosynthesis Arcade Lobby</title>
+  <title>Photosynthesis Arcade 🌿</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    /* ====== Organic Glass Theme ====== */
+    /* --- Organic Forest-Energy Theme --- */
     :root {
-      --leaf-light: #b9f6ca;
-      --leaf-dark: #064e3b;
-      --gold: #facc15;
-      --glass: rgba(255,255,255,0.08);
+      --lime: #bef264;
+      --forest1: #0f172a;
+      --forest2: #14532d;
+      --forest3: #0f766e;
       --white: #f8fafc;
+      --glass: rgba(255, 255, 255, 0.08);
+      --blur: blur(14px);
     }
 
     html, body {
       margin: 0;
+      padding: 0;
       height: 100%;
-      font-family: "Inter", system-ui, sans-serif;
-      background: radial-gradient(circle at 20% 10%, #166534 0%, #0f172a 80%);
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, var(--forest1) 0%, var(--forest2) 45%, var(--forest3) 100%);
       color: var(--white);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       overflow: hidden;
+      animation: hueShift 20s infinite alternate ease-in-out;
     }
 
+    @keyframes hueShift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(15deg); }
+    }
+
+    /* Floating particles */
     body::before {
       content: "";
-      position: absolute;
+      position: fixed;
       inset: 0;
-      background: url('https://grainy-gradients.vercel.app/noise.svg');
-      opacity: 0.15;
-      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 180px 180px;
+      opacity: 0.25;
+      animation: float 60s linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-200px, -200px); }
     }
 
-    main {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
+    /* Main container */
+    .panel {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--glass);
+      border-radius: 20px;
+      padding: 40px 50px;
       text-align: center;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px;
-      padding: 40px 60px;
-      backdrop-filter: blur(18px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-      animation: fadeIn 1s ease-out;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      backdrop-filter: var(--blur);
+      max-width: 600px;
+      width: 90%;
+      z-index: 1;
+      animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #a3e635, #facc15);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: 0.03em;
-      margin: 0;
-      animation: glow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #bef26440; }
-      to { text-shadow: 0 0 25px #bef264aa; }
+      font-size: 2.5rem;
+      margin-bottom: 0.4em;
+      color: var(--lime);
+      text-shadow: 0 0 18px rgba(190,242,100,0.4);
     }
 
     p {
-      opacity: 0.85;
-      font-size: 1.05rem;
-      margin-bottom: 8px;
+      opacity: 0.8;
+      margin-bottom: 18px;
+      font-size: 1.1rem;
+    }
+
+    button {
+      background: var(--lime);
+      color: #0f172a;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      margin: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #d9f99d;
+      transform: scale(1.05);
+    }
+
+    a {
+      display: inline-block;
+      margin: 8px 12px;
+      text-decoration: none;
+      color: var(--lime);
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: 0.25s ease;
+    }
+
+    a:hover {
+      text-shadow: 0 0 12px rgba(190,242,100,0.6);
+      transform: scale(1.05);
     }
 
     #game-links {
       display: none;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    a {
-      text-decoration: none;
-      color: #dcfce7;
-      font-weight: 600;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 10px 16px;
-      border-radius: 999px;
-      transition: all 0.3s ease;
-    }
-
-    a:hover {
-      background: #bef26433;
-      transform: scale(1.04);
-    }
-
-    button {
-      background: linear-gradient(90deg, #a3e635, #65a30d);
-      border: none;
-      color: #0f172a;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 10px 20px;
-      cursor: pointer;
-      margin: 4px;
-      transition: transform 0.2s ease, box-shadow 0.3s;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(190,242,100,0.4);
+      margin: 20px 0;
     }
 
     #user-info {
-      font-size: 1rem;
+      margin-top: 8px;
+      font-weight: 500;
       opacity: 0.9;
     }
 
+    /* Leaderboard section */
     #leaderboards {
-      margin-top: 20px;
-      background: var(--glass);
-      border-radius: 16px;
-      padding: 20px;
-      width: 280px;
+      margin-top: 30px;
       text-align: left;
-      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 20px 24px;
+      box-shadow: inset 0 0 40px rgba(255,255,255,0.04);
     }
 
     #leaderboards h3 {
-      font-size: 1.1rem;
-      margin-bottom: 6px;
-      color: #a3e635;
+      color: var(--lime);
+      margin-bottom: 8px;
+      text-shadow: 0 0 12px rgba(190,242,100,0.3);
     }
 
     #leaderboards div {
       font-size: 0.95rem;
       line-height: 1.5;
+      margin-bottom: 14px;
+      white-space: pre-line;
     }
 
-    /* Spinner */
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.2);
-      border-top-color: #bef264;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
+    /* Highlight top score */
+    #leaderboards div:first-of-type span:first-child {
+      color: #fff;
+      font-weight: bold;
+      text-shadow: 0 0 8px var(--lime);
     }
 
     @media (max-width: 600px) {
-      main {
-        width: 90%;
-        padding: 24px;
-      }
+      .panel { padding: 28px 26px; }
       h1 { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
-  <main>
+  <div class="panel">
     <h1>🌿 Photosynthesis Arcade</h1>
-    <p>Sign in with your @gmail.com account to play.</p>
+    <p>Sign in with your <strong>@gmail.com</strong> account to play and climb the leaderboard!</p>
 
     <div id="game-links">
       <a href="snake.html">🐍 Molecules Snake</a>
@@ -182,21 +174,21 @@
 
     <button id="login-btn">Sign in with Google</button>
     <button id="logout-btn" style="display:none;">Logout</button>
+
     <div id="user-info"></div>
 
     <div id="leaderboards">
       <h3>🐍 Snake – Top 10</h3>
-      <div id="snakeTop"><span class="spinner"></span> Loading...</div>
-
+      <div id="snakeTop">Loading...</div>
       <h3>💨 Catch the Light – Top 10</h3>
-      <div id="lightTop"><span class="spinner"></span> Loading...</div>
+      <div id="lightTop">Loading...</div>
     </div>
-  </main>
+  </div>
 
-  <!-- ✅ Firebase setup (shared script) -->
+  <!-- ✅ Firebase setup -->
   <script type="module" src="firebase.js"></script>
 
-  <!-- ✅ Lobby logic -->
+  <!-- ✅ Logic -->
   <script type="module">
     const fs = window.firebaseStuff;
     const loginBtn = document.getElementById("login-btn");
@@ -214,7 +206,7 @@
         userInfo.textContent = `Signed in as ${user.displayName}`;
         loginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
-        gameLinks.style.display = "flex";
+        gameLinks.style.display = "block";
       } else {
         userInfo.textContent = "";
         loginBtn.style.display = "inline-block";
@@ -223,14 +215,13 @@
       }
     });
 
-    // Leaderboard rendering
     function renderLeaderboard(container, rows) {
-      if (!rows.length) {
-        container.innerHTML = "No scores yet!";
+      if (rows.length === 0) {
+        container.textContent = "No scores yet!";
         return;
       }
       container.innerHTML = rows
-        .map((r, i) => `${i + 1}. ${r.userName || "Anonymous"} — ${r.score}`)
+        .map((r, i) => `<span>${i + 1}. ${r.userName || "Anonymous"} — ${r.score}</span>`)
         .join("<br>");
     }
 
