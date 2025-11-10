@@ -123,6 +123,39 @@ html, body {
   #container {flex-direction: column; gap: 14px;}
   .side-panel {width: min(90vw, 480px);}
 }
+  /* Game Over Popup */
+.popup {
+  position: fixed;
+  inset: 0;
+  display: none; /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 9999;
+}
+
+.popup-content {
+  background: #fffbea;
+  color: #0f172a;
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  color: #dc2626;
+  font-size: 2rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
 </style>
 <script type="module" src="firebase.js"></script>
 </head>
@@ -135,6 +168,14 @@ html, body {
 <div id="container">
   <canvas id="game"></canvas>
 
+  <!-- Game Over Popup -->
+<div id="gameOverPopup" class="popup">
+  <div class="popup-content">
+    <h2>Game Over</h2>
+    <p>You crashed! Press <b>R</b> to restart.</p>
+  </div>
+</div>
+  
   <div class="side-panel">
     <div class="stats">
       <div>🌿 Round: <span id="round">1</span></div>
@@ -179,7 +220,7 @@ const targetNameEl = document.getElementById("targetName");
 const targetNameBox = document.getElementById("targetNameBox");
 const targetExplainEl = document.getElementById("targetExplain");
 
-const cols = 20, rows = 20;
+const cols = 14, rows = 14;
 let tile = 32;
 let half = tile / 2;
 
@@ -261,20 +302,28 @@ async function sendScoreIfPossible() {
   }
 }
 
-function update(){
+function update() {
   if (gameOver) return;
+
   dir = pendingDir;
   const head = snake[0];
-  const nh = {x: head.x + dir.x, y: head.y + dir.y};
+  const nh = { x: head.x + dir.x, y: head.y + dir.y };
 
-  if (nh.x < 0 || nh.x >= cols || nh.y < 0 || nh.y >= rows ||
-      snake.some(s => s.x === nh.x && s.y === nh.y)) {
+  // Check if the snake hits the wall or itself
+  if (
+    nh.x < 0 || nh.x >= cols ||
+    nh.y < 0 || nh.y >= rows ||
+    snake.some(s => s.x === nh.x && s.y === nh.y)
+  ) {
     gameOver = true;
+    document.getElementById("gameOverPopup").style.display = "flex"; // 👈 show popup
     sendScoreIfPossible();
     return;
   }
 
   snake.unshift(nh);
+
+  // Check if snake hits a molecule
   const hit = items.find(it => it.x === nh.x && it.y === nh.y);
   if (hit) {
     if (hit.correct) {
@@ -283,12 +332,14 @@ function update(){
       startRound();
     } else {
       gameOver = true;
+      document.getElementById("gameOverPopup").style.display = "flex"; // 👈 show popup
       sendScoreIfPossible();
     }
   } else {
     snake.pop();
   }
 }
+
 
 function drawGrid(){
   const light="#dbffe6", dark="#c1f3d0";
@@ -417,13 +468,15 @@ window.addEventListener("keydown", e => {
   else if ((k==="d"||k==="ArrowRight") && dir.x!==-1) pendingDir = {x:1,y:0};
   else if (k==="r"||k==="R") {
     if (gameOver){
-      snake = [{x:7,y:7},{x:6,y:7}];
-      dir = {x:1,y:0};
-      pendingDir = {x:1,y:0};
-      score = 0;
-      round = 1;
-      gameOver = false;
-      startRound();
+      document.getElementById("gameOverPopup").style.display = "none"; // 👈 hide popup
+    snake = [{x:7,y:7},{x:6,y:7}];
+    dir = {x:1,y:0};
+    pendingDir = {x:1,y:0};
+    score = 0;
+    round = 1;
+    gameOver = false;
+    startRound();
+
     }
   }
 });
