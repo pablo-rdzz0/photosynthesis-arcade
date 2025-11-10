@@ -54,27 +54,7 @@ html, body {
   box-sizing: border-box;
 }
 
-/* HUD */
-#hud {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 12px 34px;
-  display: flex;
-  gap: 40px;
-  align-items: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-  font-size: 20px;
-  font-weight: 600;
-  z-index: 10;
-}
-
-/* Canvas & panel */
+/* Canvas */
 #game {
   border-radius: 22px;
   background: #e8ffe9;
@@ -82,8 +62,9 @@ html, body {
   box-shadow: 0 0 80px rgba(0,0,0,0.35);
 }
 
+/* Right side panel */
 .side-panel {
-  width: 280px;
+  width: 300px;
   max-width: 25vw;
   background: rgba(15,23,42,0.55);
   border: 1px solid rgba(255,255,255,0.08);
@@ -97,6 +78,20 @@ html, body {
   font-size: 24px;
   letter-spacing: .03em;
 }
+
+/* Stats block */
+.stats {
+  background: rgba(190,242,100,0.1);
+  border: 1px solid rgba(190,242,100,0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Target Info */
 .target-box {
   background: radial-gradient(circle at top left, rgba(190,242,100,0.22), rgba(15,23,42,0));
   border: 1px solid rgba(190,242,100,0.3);
@@ -107,10 +102,6 @@ html, body {
 .target-name {
   font-size: 20px;
   font-weight: 600;
-}
-.target-formula {
-  font-size: 16px;
-  opacity: 0.85;
 }
 .explain {
   font-size: 14px;
@@ -131,37 +122,34 @@ html, body {
 @media (max-width: 1050px) {
   #container {flex-direction: column; gap: 14px;}
   .side-panel {width: min(90vw, 480px);}
-  #hud {flex-direction: column; gap: 6px; font-size: 16px;}
 }
 </style>
-
-<!-- Firebase integration -->
-<!-- ✅ Global Firebase -->
 <script type="module" src="firebase.js"></script>
-
 </head>
+
 <body>
 <div id="topbar">
   <button id="back-btn" onclick="window.location.href='index.html'">← Back to Lobby</button>
 </div>
 
-<div id="hud">
-  🌿 Round: <span id="round">1</span>
-  🌞 Score: <span id="score">0</span>
-  🎯 Target: <span id="targetName">Water</span>
-</div>
-
 <div id="container">
   <canvas id="game"></canvas>
+
   <div class="side-panel">
+    <div class="stats">
+      <div>🌿 Round: <span id="round">1</span></div>
+      <div>🌞 Score: <span id="score">0</span></div>
+      <div>🎯 Target: <span id="targetName">Water</span></div>
+    </div>
+
     <h2>Photosynthesis Info</h2>
     <div class="target-box">
       <div class="target-name" id="targetNameBox">Water</div>
-      <div class="target-formula" id="targetFormula">H₂O</div>
       <p class="explain" id="targetExplain">
         Water provides electrons and hydrogen ions during the light reactions.
       </p>
     </div>
+
     <div class="legend">
       <div>🟩 Grab the molecule that matches the target.</div>
       <div>⬛ Wrong one = you lose.</div>
@@ -178,27 +166,24 @@ window.addEventListener("DOMContentLoaded", () => {
   if (!fs) return;
   fs.onAuth((user) => {
     firebaseUser = user;
-    if (!user) {
-      window.location.href = "index.html";
-    }
+    if (!user) window.location.href = "index.html";
   });
 });
 
-// ======== GAME LOGIC ========
+// ========== GAME LOGIC ==========
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const roundEl = document.getElementById("round");
 const targetNameEl = document.getElementById("targetName");
 const targetNameBox = document.getElementById("targetNameBox");
-const targetFormulaEl = document.getElementById("targetFormula");
 const targetExplainEl = document.getElementById("targetExplain");
 
-const cols = 15, rows = 15;
-let tile = 40;
+const cols = 20, rows = 20;
+let tile = 32;
 let half = tile / 2;
 
-let snake = [{x:7,y:7},{x:6,y:7},{x:5,y:7}];
+let snake = [{x:7,y:7},{x:6,y:7}];
 let dir = {x:1,y:0}, pendingDir = {x:1,y:0};
 
 const molecules = [
@@ -234,21 +219,20 @@ function setHUD(){
   roundEl.textContent = round;
   targetNameEl.textContent = currentTarget.name;
   targetNameBox.textContent = currentTarget.name;
-  targetFormulaEl.textContent = currentTarget.formula;
   targetExplainEl.textContent = currentTarget.explain;
 }
 
-function manhattan(a,b){
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
+function manhattan(a,b){ return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
+
 function randomDistractor(except){
   const pool = molecules.filter(m=>m.formula!==except);
   return pool[Math.floor(Math.random()*pool.length)].formula;
 }
+
 function startRound(){
   currentTarget = molecules[Math.floor(Math.random()*molecules.length)];
   items = [];
-  const count = 7;
+  const count = 10; // more molecules now
   const correctIndex = Math.floor(Math.random()*count);
   const head = snake[0];
 
@@ -273,11 +257,7 @@ function startRound(){
 async function sendScoreIfPossible() {
   const fs = window.firebaseStuff;
   if (fs && firebaseUser) {
-    await fs.saveScore({
-      game: "snake",
-      score: score,
-      user: firebaseUser
-    });
+    await fs.saveScore({game: "snake", score, user: firebaseUser});
   }
 }
 
@@ -319,6 +299,7 @@ function drawGrid(){
     }
   }
 }
+
 function drawItems(){
   for (const it of items){
     const x = it.x*tile, y = it.y*tile;
@@ -331,11 +312,12 @@ function drawItems(){
     ctx.fillStyle = "#0f172a";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = (tile*0.42) + "px system-ui";
+    ctx.font = (tile*0.4) + "px system-ui";
     ctx.fillText(it.formula, tile/2, tile/2+1);
     ctx.restore();
   }
 }
+
 function drawSnake(){
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
@@ -351,6 +333,7 @@ function drawSnake(){
   }
   ctx.stroke();
 
+  // body dots
   for (let i=snake.length-1;i>=1;i--){
     const s = snake[i];
     ctx.beginPath();
@@ -359,6 +342,7 @@ function drawSnake(){
     ctx.fill();
   }
 
+  // flower head
   const h = snake[0];
   const hx = h.x*tile+half;
   const hy = h.y*tile+half;
@@ -383,23 +367,27 @@ function drawSnake(){
   ctx.arc(hx, hy, headR*0.5+2, 0, Math.PI*2);
   ctx.stroke();
 }
+
 function drawGameOver(){
   ctx.fillStyle="rgba(0,0,0,0.55)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle="#fff";
   ctx.textAlign="center";
-  ctx.font=Math.floor(canvas.width*0.065) + "px system-ui";
-  ctx.fillText("Game Over",canvas.width/2,canvas.height/2-18);
+  ctx.textBaseline="middle";
+  ctx.font=Math.floor(canvas.width*0.06) + "px system-ui";
+  ctx.fillText("Game Over",canvas.width/2,canvas.height/2 - 20);
   ctx.font=Math.floor(canvas.width*0.035) + "px system-ui";
-  ctx.fillText("Press R to restart",canvas.width/2,canvas.height/2+26);
+  ctx.fillText("Press R to restart",canvas.width/2,canvas.height/2 + 30);
 }
+
 function render(){
   drawGrid();
   drawItems();
   drawSnake();
   if (gameOver) drawGameOver();
 }
-let last=0, step=150;
+
+let last=0, step=130;
 function loop(ts){
   if (!last) last = ts;
   const d = ts - last;
@@ -419,7 +407,7 @@ window.addEventListener("keydown", e => {
   else if ((k==="d"||k==="ArrowRight") && dir.x!==-1) pendingDir = {x:1,y:0};
   else if (k==="r"||k==="R") {
     if (gameOver){
-      snake = [{x:7,y:7},{x:6,y:7},{x:5,y:7}];
+      snake = [{x:7,y:7},{x:6,y:7}];
       dir = {x:1,y:0};
       pendingDir = {x:1,y:0};
       score = 0;
