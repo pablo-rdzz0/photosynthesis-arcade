@@ -18,6 +18,9 @@ import {
   limit,
   onSnapshot,
   serverTimestamp,
+  getDocs,
+  doc,
+  setDoc,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -38,13 +41,12 @@ const provider = new GoogleAuthProvider();
 window.firebaseStuff = {
   auth,
   db,
+
   async signIn() {
     try {
-      // Attempt popup first
       await signInWithPopup(auth, provider);
     } catch (error) {
       if (error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user") {
-        // fallback to redirect
         await signInWithRedirect(auth, provider);
       } else {
         console.error("Sign-in error:", error);
@@ -52,6 +54,7 @@ window.firebaseStuff = {
       }
     }
   },
+
   async checkRedirect() {
     try {
       const result = await getRedirectResult(auth);
@@ -60,35 +63,70 @@ window.firebaseStuff = {
       console.error("Redirect error", e);
     }
   },
+
   onAuth(callback) {
     return onAuthStateChanged(auth, callback);
   },
+
   signOut() {
     return signOut(auth);
   },
+
+  // ✅ Save score (updates user's doc if they already exist)
   async saveScore({ game, score, user }) {
     if (!user) return;
     try {
-      await addDoc(collection(db, "scores"), {
-        game,
-        score,
-        userEmail: user.email,
-        userName: user.displayName,
-      });
+      const scoresRef = collection(db, "scores");
+      const q = query(scoresRef, where("game", "==", game), where("userEmail", "==", user.email));
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        // update only if the new score is higher
+        const docRef = snap.docs[0].ref;
+        const prevScore = snap.docs[0].data().score;
+        if (score > prevScore) {
+          await setDoc(docRef, { game, score, userEmail: user.email, userName: user.displayName });
+        }
+      } else {
+        // first time: add new score
+        await addDoc(scoresRef, {
+          game,
+          score,
+          userEmail: user.email,
+          userName: user.displayName,
+        });
+      }
     } catch (e) {
       console.error("Error saving score", e);
     }
   },
+
+  // ✅ Listen to leaderboard — only best score per player
   listenTop(game, cb) {
     const q = query(
       collection(db, "scores"),
       where("game", "==", game),
       orderBy("score", "desc"),
-      limit(10)
+      limit(200)
     );
+
     return onSnapshot(q, (snap) => {
-      const rows = [];
-      snap.forEach((doc) => rows.push({ id: doc.id, ...doc.data() }));
+      const bestScores = {};
+
+      snap.forEach((doc) => {
+        const data = doc.data();
+        const name = data.userName || "Anonymous";
+        const score = data.score;
+
+        if (!bestScores[name] || score > bestScores[name].score) {
+          bestScores[name] = { ...data, id: doc.id };
+        }
+      });
+
+      const rows = Object.values(bestScores)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+
       cb(rows);
     });
   },
