@@ -122,14 +122,16 @@
     /* 🌿 Panels */
     #leaderboards {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
       background: rgba(15, 23, 42, 0.35);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
       padding: 28px;
       backdrop-filter: blur(20px);
-      max-width: 480px;
+      max-width: 960px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
       animation: panelFade 0.8s ease-out;
     }
@@ -139,10 +141,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .board {
+      flex: 1;
+      min-width: 280px;
+      background: rgba(190, 242, 100, 0.05);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.25);
+    }
+
     h3 {
-      margin-top: 20px;
+      margin-top: 0;
       font-size: 1.3rem;
       color: #d9f99d;
+      text-align: center;
       text-shadow: 0 0 10px rgba(190, 242, 100, 0.4);
     }
 
@@ -181,11 +193,16 @@
 
     <div id="user-info"></div>
 
+    <!-- 🟩 SIDE-BY-SIDE LEADERBOARDS -->
     <div id="leaderboards">
-      <h3>🐍 Snake – Top 10</h3>
-      <div id="snakeTop">Loading...</div>
-      <h3>💨 Catch the Light – Top 10</h3>
-      <div id="lightTop">Loading...</div>
+      <div class="board">
+        <h3>🐍 Snake – Top 10</h3>
+        <div id="snakeTop">Loading...</div>
+      </div>
+      <div class="board">
+        <h3>💨 Catch the Light – Top 10</h3>
+        <div id="lightTop">Loading...</div>
+      </div>
     </div>
 
     <!-- Floating light particles -->
