@@ -525,11 +525,12 @@ function loop(){
 window.addEventListener("keydown", e=>keys[e.key]=true);
 window.addEventListener("keyup", e=>keys[e.key]=false);
 
-// 🌞 Welcome Modal Logic + Help Button Integration
+// 🌞 Welcome Modal Logic + Pause Button Integration
 window.addEventListener("load", () => {
   const modal = document.getElementById("welcomeModal");
   const startBtn = document.getElementById("startGameBtn");
-  const helpBtn = document.getElementById("help-btn");
+  const pauseBtn = document.getElementById("help-btn"); // repurpose the help button
+  pauseBtn.textContent = "⏸️"; // change icon to pause
 
   // Always show modal on load
   modal.style.display = "flex";
@@ -540,9 +541,30 @@ window.addEventListener("load", () => {
     loop();
   });
 
-  helpBtn.addEventListener("click", () => {
-    paused = true;
-    modal.style.display = "flex";
+  // 🕹️ Pause / Resume toggle logic
+  pauseBtn.addEventListener("click", () => {
+    if (!paused) {
+      paused = true;
+      modal.style.display = "flex";
+      modal.querySelector(".modal-content").innerHTML = `
+  <h2>🌞 Catch the Light!</h2>
+  <p>
+    Help your plant perform <b>photosynthesis</b> by catching <b>light photons</b> ☀️
+    and <b>water droplets</b> 💧 while avoiding pollutants ⚫.
+  </p>
+  <ul style="text-align:left;">
+    <li>☀️ Catch <b>light</b> → creates ATP &amp; NADPH (energy)</li>
+    <li>💧 Catch <b>water</b> → releases oxygen (O₂)</li>
+    <li>⚫ Avoid <b>pollutants</b> → they drain energy</li>
+  </ul>
+  <button id="resumeBtn">Resume</button>
+`;
+
+      document.getElementById("resumeBtn").onclick = () => {
+        modal.style.display = "none";
+        paused = false;
+      };
+    }
   });
 });
 
