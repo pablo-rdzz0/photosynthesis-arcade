@@ -522,20 +522,26 @@ window.addEventListener("keydown", e=>keys[e.key]=true);
 window.addEventListener("keyup", e=>keys[e.key]=false);
 
 // 🌞 Welcome Modal Logic + Help Button Integration
-const modal = document.getElementById("welcomeModal");
-const startBtn = document.getElementById("startGameBtn");
-const helpBtn = document.getElementById("help-btn");
+window.addEventListener("load", () => {
+  const modal = document.getElementById("welcomeModal");
+  const startBtn = document.getElementById("startGameBtn");
+  const helpBtn = document.getElementById("help-btn");
 
-startBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-  initGame();
-  loop();
-});
-
-helpBtn.addEventListener("click", () => {
-  paused = true;
+  // Always show modal on load
   modal.style.display = "flex";
+
+  startBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+    initGame();
+    loop();
+  });
+
+  helpBtn.addEventListener("click", () => {
+    paused = true;
+    modal.style.display = "flex";
+  });
 });
+
 
 // Close modal again when user restarts
 window.onload = () => {
