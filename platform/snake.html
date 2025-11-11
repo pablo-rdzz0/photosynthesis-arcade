@@ -448,14 +448,19 @@ function render(){
   if (gameOver) drawGameOver();
 }
 
-let last=0, step=170;
+let last = 0, acc = 0, step = 170;
+
 function loop(ts){
   if (!last) last = ts;
-  const d = ts - last;
-  if (d > step){
+  const delta = ts - last;
+  last = ts;
+  acc += delta;
+
+  while (acc >= step) {
     update();
-    last = ts;
+    acc -= step;
   }
+
   render();
   requestAnimationFrame(loop);
 }
