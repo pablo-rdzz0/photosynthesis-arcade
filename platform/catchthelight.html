@@ -310,6 +310,9 @@ function initGame(){
   timeEl.textContent = "30";
   bar.style.width = "0%";
   document.querySelectorAll(".endOverlay, .tryhardOverlay").forEach(el => el.remove());
+ bgMode = "day";        // 🌞 Reset to daytime background
+tryhardTextAlpha = 0;  // hide TRYHARD MODE overlay text
+
 }
 function drawBackground() {
   // 1️⃣ Main background gradient (day → sunset)
