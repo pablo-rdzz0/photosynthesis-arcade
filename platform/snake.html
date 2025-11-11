@@ -273,7 +273,7 @@ function randomDistractor(except){
 function startRound(){
   currentTarget = molecules[Math.floor(Math.random()*molecules.length)];
   items = [];
-  const count = 10; // more molecules now
+  const count = 8; // more molecules now
   const correctIndex = Math.floor(Math.random()*count);
   const head = snake[0];
 
@@ -448,7 +448,7 @@ function render(){
   if (gameOver) drawGameOver();
 }
 
-let last=0, step=130;
+let last=0, step=170;
 function loop(ts){
   if (!last) last = ts;
   const d = ts - last;
