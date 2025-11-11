@@ -433,7 +433,7 @@ function checkCollisions(arr,type){
       if(type==="photon"){score++;energy+=5;timeLeft+=1;}
       else if(type==="water"){energy+=10;timeLeft+=1;}
       else if(type==="pollutant"){energy=Math.max(energy-25,0);timeLeft-=(tryhard?10:5);pollutionPenalty=180;flashRed();}
-      if(energy>=100){energy=0;o2Count++;speedMultiplier*=1.15;photosynthesisBurst();if(!tryhard&&o2Count>=7){tryhard=true;paused=true;showTryhardOverlay();}}
+      if(energy>=100){energy=0;o2Count++;speedMultiplier*=1.07;photosynthesisBurst();if(!tryhard&&o2Count>=10){tryhard=true;paused=true;showTryhardOverlay();}}
     }
   }
 }
