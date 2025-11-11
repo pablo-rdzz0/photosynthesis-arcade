@@ -566,6 +566,15 @@ window.addEventListener("load", () => {
       };
     }
   });
+
+  
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && !gameOver) {
+    e.preventDefault(); // stop the page from scrolling
+    pauseBtn.click(); // trigger same logic as clicking the pause button
+  }
+});
+
 });
 
 
