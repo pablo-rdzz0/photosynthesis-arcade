@@ -301,10 +301,33 @@ async function sendScoreIfPossible() {
     await fs.saveScore({game: "snake", score, user: firebaseUser});
   }
 }
+const inputQueue = [];
+
+window.addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  if (["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) {
+    inputQueue.push(k);
+  } else if (k === "r" && gameOver) {
+    document.getElementById("gameOverPopup").style.display = "none";
+    snake = [{x:7,y:7},{x:6,y:7}];
+    dir = {x:1,y:0};
+    pendingDir = {x:1,y:0};
+    score = 0; round = 1; gameOver = false;
+    startRound();
+  }
+});
 
 function update() {
   if (gameOver) return;
 
+   if (inputQueue.length) {
+    const nextKey = inputQueue.shift();
+    if ((nextKey === "w" || nextKey === "arrowup") && dir.y !== 1) pendingDir = {x:0,y:-1};
+    else if ((nextKey === "s" || nextKey === "arrowdown") && dir.y !== -1) pendingDir = {x:0,y:1};
+    else if ((nextKey === "a" || nextKey === "arrowleft") && dir.x !== 1) pendingDir = {x:-1,y:0};
+    else if ((nextKey === "d" || nextKey === "arrowright") && dir.x !== -1) pendingDir = {x:1,y:0};
+  }
+  
   dir = pendingDir;
   const head = snake[0];
   const nh = { x: head.x + dir.x, y: head.y + dir.y };
@@ -369,55 +392,86 @@ function drawItems(){
   }
 }
 
-function drawSnake(){
+function drawSnake(alpha = 1) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.lineWidth = tile*0.55;
-  const grd = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  grd.addColorStop(0,"#166534");
-  grd.addColorStop(1,"#22c55e");
+  ctx.lineWidth = tile * 0.55;
+  const grd = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grd.addColorStop(0, "#166534");
+  grd.addColorStop(1, "#22c55e");
   ctx.strokeStyle = grd;
+
+  // 🪄 Interpolated snake copy for smooth sliding
+  const interpSnake = snake.map((seg, i) => {
+    if (i === 0) {
+      // head — slide between old and new direction
+      const prev = { x: seg.x - dir.x, y: seg.y - dir.y };
+      return {
+        x: prev.x + dir.x * alpha,
+        y: prev.y + dir.y * alpha,
+      };
+    } else {
+      // follow previous segment
+      const next = snake[i - 1];
+      return {
+        x: seg.x + (next.x - seg.x) * alpha,
+        y: seg.y + (next.y - seg.y) * alpha,
+      };
+    }
+  });
+
+  // 🐍 body path
   ctx.beginPath();
-  ctx.moveTo(snake[0].x*tile+half, snake[0].y*tile+half);
-  for (let i=1;i<snake.length;i++){
-    ctx.lineTo(snake[i].x*tile+half, snake[i].y*tile+half);
+  ctx.moveTo(interpSnake[0].x * tile + half, interpSnake[0].y * tile + half);
+  for (let i = 1; i < interpSnake.length; i++) {
+    ctx.lineTo(interpSnake[i].x * tile + half, interpSnake[i].y * tile + half);
   }
   ctx.stroke();
 
-  // body dots
-  for (let i=snake.length-1;i>=1;i--){
-    const s = snake[i];
+  // 🌿 body dots
+  for (let i = interpSnake.length - 1; i >= 1; i--) {
+    const s = interpSnake[i];
     ctx.beginPath();
     ctx.fillStyle = "#22c55e";
-    ctx.arc(s.x*tile+half, s.y*tile+half, tile*0.28, 0, Math.PI*2);
+    ctx.arc(s.x * tile + half, s.y * tile + half, tile * 0.28, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // flower head
-  const h = snake[0];
-  const hx = h.x*tile+half;
-  const hy = h.y*tile+half;
-  const headR = tile*0.42;
+  // 🌼 flower head (unchanged)
+  const h = interpSnake[0];
+  const hx = h.x * tile + half;
+  const hy = h.y * tile + half;
+  const headR = tile * 0.42;
   const petalCount = 6;
-  const petalDist = tile*0.28;
-  const petalR = tile*0.16;
+  const petalDist = tile * 0.28;
+  const petalR = tile * 0.16;
+
   ctx.fillStyle = "#f97316";
-  for (let i=0;i<petalCount;i++){
-    const ang = (i/petalCount)*Math.PI*2;
+  for (let i = 0; i < petalCount; i++) {
+    const ang = (i / petalCount) * Math.PI * 2;
     ctx.beginPath();
-    ctx.arc(hx + Math.cos(ang)*petalDist, hy + Math.sin(ang)*petalDist, petalR, 0, Math.PI*2);
+    ctx.arc(
+      hx + Math.cos(ang) * petalDist,
+      hy + Math.sin(ang) * petalDist,
+      petalR,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
   }
+
   ctx.beginPath();
   ctx.fillStyle = "#fde68a";
-  ctx.arc(hx, hy, headR*0.5, 0, Math.PI*2);
+  ctx.arc(hx, hy, headR * 0.5, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.beginPath();
   ctx.strokeStyle = "rgba(15,23,42,0.15)";
   ctx.lineWidth = 2;
-  ctx.arc(hx, hy, headR*0.5+2, 0, Math.PI*2);
+  ctx.arc(hx, hy, headR * 0.5 + 2, 0, Math.PI * 2);
   ctx.stroke();
 }
+
 
 function drawGameOver() {
   // Dim the background
@@ -441,16 +495,70 @@ function drawGameOver() {
 
 }
 
-function render(){
+function drawSnake(alpha = 1) {
+  // same visual design
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = tile * 0.55;
+  const grd = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grd.addColorStop(0, "#166534");
+  grd.addColorStop(1, "#22c55e");
+  ctx.strokeStyle = grd;
+
+  // compute smooth head position
+  const head = snake[0];
+  const prev = { x: head.x - dir.x, y: head.y - dir.y };
+  const hx = (prev.x + dir.x * alpha) * tile + half;
+  const hy = (prev.y + dir.y * alpha) * tile + half;
+
+  ctx.beginPath();
+  ctx.moveTo(hx, hy);
+  for (let i = 1; i < snake.length; i++) {
+    ctx.lineTo(snake[i].x * tile + half, snake[i].y * tile + half);
+  }
+  ctx.stroke();
+
+  // body dots
+  for (let i = snake.length - 1; i >= 1; i--) {
+    const s = snake[i];
+    ctx.beginPath();
+    ctx.fillStyle = "#22c55e";
+    ctx.arc(s.x * tile + half, s.y * tile + half, tile * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // flower head (same as before)
+  const headR = tile * 0.42;
+  const petalCount = 6;
+  const petalDist = tile * 0.28;
+  const petalR = tile * 0.16;
+  ctx.fillStyle = "#f97316";
+  for (let i = 0; i < petalCount; i++) {
+    const ang = (i / petalCount) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(hx + Math.cos(ang) * petalDist, hy + Math.sin(ang) * petalDist, petalR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.fillStyle = "#fde68a";
+  ctx.arc(hx, hy, headR * 0.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(15,23,42,0.15)";
+  ctx.lineWidth = 2;
+  ctx.arc(hx, hy, headR * 0.5 + 2, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function render(alpha = 1) {
   drawGrid();
   drawItems();
-  drawSnake();
+  drawSnake(alpha);
   if (gameOver) drawGameOver();
 }
 
 let last = 0, acc = 0, step = 170;
-
-function loop(ts){
+function loop(ts) {
   if (!last) last = ts;
   const delta = ts - last;
   last = ts;
@@ -461,7 +569,9 @@ function loop(ts){
     acc -= step;
   }
 
-  render();
+
+  const alpha = Math.min(acc / step, 1);
+  render(alpha);
   requestAnimationFrame(loop);
 }
 
