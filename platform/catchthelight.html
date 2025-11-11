@@ -445,7 +445,7 @@ function update(){
   if(pollutionPenalty>0) pollutionPenalty--;
   if(Math.random()<0.03*speedMultiplier) spawnPhoton();
   if(Math.random()<0.015*speedMultiplier) spawnWater();
-  if(Math.random()<(tryhard?0.07:0.035)) spawnPollutant();
+  if(Math.random()<(tryhard?0.09:0.035)) spawnPollutant();
       photons=updateObjects(photons);
   waters=updateObjects(waters);
   pollutants=updateObjects(pollutants);
