@@ -455,7 +455,7 @@ function photosynthesisBurst(){
   }
 
 }
-function showEndOverlay(){
+function showEndOverlay() {
   const overlay = document.createElement("div");
   overlay.className = "endOverlay";
   overlay.innerHTML = `
@@ -465,8 +465,12 @@ function showEndOverlay(){
     <button id="lobbyBtn" style="background:#94dcc4;">🏠 Back to Lobby</button>
   `;
   document.body.appendChild(overlay);
-  document.getElementById("restartBtn").onclick = ()=>{overlay.remove(); initGame();};
+
+  // ✅ Event listeners
+  document.getElementById("restartBtn").onclick = () => { overlay.remove(); initGame(); };
+  document.getElementById("lobbyBtn").onclick = () => { window.location.href = "index.html"; };
 }
+
 async function endGame(){
   gameOver = true;
   const fs = window.firebaseStuff;
