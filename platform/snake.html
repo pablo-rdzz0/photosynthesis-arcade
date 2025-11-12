@@ -482,26 +482,57 @@ function drawSnake(alpha = 1) {
 
 
 function drawGameOver() {
-  // Dim the background
+  // Dim background
   ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Setup centered white text
+  // Centered text
   ctx.fillStyle = "#fff";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // "Game Over" headline
-  const titleSize = Math.floor(canvas.width * 0.07); // slightly smaller and proportional
+  const titleSize = Math.floor(canvas.width * 0.07);
+  const subtitleSize = Math.floor(canvas.width * 0.035);
+
+  // Text
   ctx.font = `${titleSize}px system-ui`;
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - titleSize * 0.4);
-
-  // Subtext
-  const subtitleSize = Math.floor(canvas.width * 0.035);
   ctx.font = `${subtitleSize}px system-ui`;
-  ctx.fillText("Press R to restart", canvas.width / 2, canvas.height / 2 + subtitleSize * 1.8);
+  ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + subtitleSize * 0.6);
 
+  // 🟡 Add overlay buttons
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.background = "rgba(0,0,0,0.65)";
+  overlay.style.color = "#fff";
+  overlay.style.zIndex = "1000";
+  overlay.innerHTML = `
+    <h2 style="margin-bottom:10px;">🐍 Game Over</h2>
+    <p style="margin-bottom:18px;">Final score: <b>${score}</b></p>
+    <div style="display:flex;gap:10px;">
+      <button id="retryBtn" style="background:#facc15;color:#0f172a;border:none;padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;">Play Again</button>
+      <button id="lobbyBtn" style="background:#94dcc4;color:#0f172a;border:none;padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;">Back to Lobby</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // 🎮 Restart game
+  document.getElementById("retryBtn").onclick = () => {
+    overlay.remove();
+    initGame(); // keep this as your game restart/reset function
+  };
+
+  // 🏠 Return to Lobby
+  document.getElementById("lobbyBtn").onclick = () => {
+    window.location.href = "index.html";
+  };
 }
+
 
 function drawSnake(alpha = 1) {
   // same visual design
