@@ -271,13 +271,36 @@ const flash = document.getElementById("flash");
 const plantImg = new Image();
 plantImg.src = "plant.png";
 
-let W,H;
-function resize(){
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+let W, H;
+
+// --- Lock game canvas to a 16:9 aspect ratio ---
+const ASPECT = 16 / 9;
+
+function resize() {
+  let w = window.innerWidth;
+  let h = window.innerHeight;
+
+  if (w / h > ASPECT) {
+    w = h * ASPECT; // window too wide
+  } else {
+    h = w / ASPECT; // window too tall
+  }
+
+  canvas.style.width = w + "px";
+  canvas.style.height = h + "px";
+  canvas.style.position = "absolute";
+  canvas.style.left = (window.innerWidth - w) / 2 + "px";
+  canvas.style.top = (window.innerHeight - h) / 2 + "px";
+
+  // Keep logical resolution the same so drawings scale cleanly
+  W = canvas.width;
+  H = canvas.height;
 }
+
 window.addEventListener("resize", resize);
+window.addEventListener("load", resize);
 resize();
+
 
 let player, photons, waters, pollutants, bubbles;
 let score, energy, o2Count, timeLeft;
