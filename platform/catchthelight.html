@@ -296,6 +296,9 @@ function resize() {
   // keep internal logical resolution constant for sharpness
   canvas.width = 1280;
   canvas.height = 720;
+
+    W = canvas.width;
+  H = canvas.height;
 }
 window.addEventListener("resize", resize);
 window.addEventListener("load", resize);
