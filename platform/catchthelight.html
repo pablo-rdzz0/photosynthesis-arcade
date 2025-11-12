@@ -277,13 +277,14 @@ let W, H;
 const ASPECT = 16 / 9;
 
 function resize() {
+  const ASPECT = 16 / 9;
   let w = window.innerWidth;
   let h = window.innerHeight;
 
   if (w / h > ASPECT) {
-    w = h * ASPECT; // window too wide
+    w = h * ASPECT; // too wide
   } else {
-    h = w / ASPECT; // window too tall
+    h = w / ASPECT; // too tall
   }
 
   canvas.style.width = w + "px";
@@ -292,11 +293,10 @@ function resize() {
   canvas.style.left = (window.innerWidth - w) / 2 + "px";
   canvas.style.top = (window.innerHeight - h) / 2 + "px";
 
-  // Keep logical resolution the same so drawings scale cleanly
-  W = canvas.width;
-  H = canvas.height;
+  // keep internal logical resolution constant for sharpness
+  canvas.width = 1280;
+  canvas.height = 720;
 }
-
 window.addEventListener("resize", resize);
 window.addEventListener("load", resize);
 resize();
