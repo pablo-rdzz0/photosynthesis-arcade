@@ -462,6 +462,7 @@ function showEndOverlay(){
     <h2>⏱️ Time's up!</h2>
     <p>You released <b>${o2Count}</b> O₂ molecules.</p>
     <button id="restartBtn">Play again</button>
+    <button id="lobbyBtn" style="background:#94dcc4;">🏠 Back to Lobby</button>
   `;
   document.body.appendChild(overlay);
   document.getElementById("restartBtn").onclick = ()=>{overlay.remove(); initGame();};
