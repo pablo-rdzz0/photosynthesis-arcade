@@ -173,8 +173,12 @@ html, body {
   <div class="popup-content">
     <h2>Game Over</h2>
     <p>You crashed! Press <b>R</b> to restart.</p>
+    <button id="lobbyBtn" style="margin-top: 10px; background:#94dcc4; border:none; padding:8px 16px; border-radius:8px; font-weight:600; cursor:pointer;">
+      🏠 Back to Lobby
+    </button>
   </div>
 </div>
+
   
   <div class="side-panel">
     <div class="stats">
@@ -603,6 +607,9 @@ window.addEventListener("keydown", e => {
     }
   }
 });
+document.getElementById("lobbyBtn").onclick = () => {
+  window.location.href = "index.html";
+};
 
 startRound();
 requestAnimationFrame(loop);
