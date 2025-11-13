@@ -273,7 +273,7 @@ plantImg.src = "plant.png";
 
 let W, H;
 
-// --- Lock game canvas to a 16:9 aspect ratio ---
+//  16:9 
 const ASPECT = 16 / 9;
 
 function resize() {
@@ -293,7 +293,7 @@ function resize() {
   canvas.style.left = (window.innerWidth - w) / 2 + "px";
   canvas.style.top = (window.innerHeight - h) / 2 + "px";
 
-  // keep internal logical resolution constant for sharpness
+  // interno
   canvas.width = 1280;
   canvas.height = 720;
 
@@ -336,28 +336,27 @@ function initGame(){
   timeEl.textContent = "30";
   bar.style.width = "0%";
   document.querySelectorAll(".endOverlay, .tryhardOverlay").forEach(el => el.remove());
- bgMode = "day";        // 🌞 Reset to daytime background
-tryhardTextAlpha = 0;  // hide TRYHARD MODE overlay text
-
+ bgMode = "day";        //  Reset to daytime background
+tryhardTextAlpha = 0;  // hide tryhard mode 
 }
 function drawBackground() {
-  // 1️⃣ Main background gradient (day → sunset)
+  
   const g = ctx.createLinearGradient(0, 0, 0, H);
 
   if (bgMode === "day") {
-    g.addColorStop(0, "#ffe4a3");  // warm yellow
-    g.addColorStop(0.55, "#94dcc4"); // turquoise
-    g.addColorStop(1, "#0f766e");  // teal-green
+    g.addColorStop(0, "#ffe4a3");  // amarillo
+    g.addColorStop(0.55, "#94dcc4"); // turquesa/aqua
+    g.addColorStop(1, "#0f766e");  // aqua/verde?
   } else if (bgMode === "sunset") {
-    g.addColorStop(0, "#f59e0b");  // golden orange
-    g.addColorStop(0.4, "#ea580c"); // sunset red-orange
-    g.addColorStop(1, "#581c0c");  // deep twilight brown
+    g.addColorStop(0, "#f59e0b");  // narannja
+    g.addColorStop(0.4, "#ea580c"); // aranciatta rossa
+    g.addColorStop(1, "#581c0c");  // cafe 
   }
 
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  // 2️⃣ Original glowing sun orb (only visible in daytime)
+  //  sol
   if (bgMode === "day") {
     const sun = ctx.createRadialGradient(W * 0.12, H * 0.12, 0, W * 0.12, H * 0.12, 120);
     sun.addColorStop(0, "rgba(255,255,255,1)");
@@ -369,7 +368,7 @@ function drawBackground() {
     ctx.fill();
   }
 
-  // 3️⃣ Floating particles (light motes)
+  
   for (let i = 0; i < 30; i++) {
     const px = (i * 123) % W;
     const py = (i * 57 + Date.now() * 0.015) % H;
@@ -379,7 +378,7 @@ function drawBackground() {
     ctx.fill();
   }
 
-  // 4️⃣ TRYHARD MODE overlay text (fades in/out)
+
   if (tryhardTextAlpha > 0) {
     ctx.save();
     ctx.globalAlpha = tryhardTextAlpha;
@@ -389,7 +388,7 @@ function drawBackground() {
     ctx.fillText("TRYHARD MODE", W / 2, H / 2);
     ctx.restore();
 
-    tryhardTextAlpha -= 0.01; // fade out gradually
+    tryhardTextAlpha -= 0.01; 
   }
 }
 
@@ -466,7 +465,7 @@ function showEndOverlay() {
   `;
   document.body.appendChild(overlay);
 
-  // ✅ Event listeners
+  // escuchantes (listeners)
   document.getElementById("restartBtn").onclick = () => { overlay.remove(); initGame(); };
   document.getElementById("lobbyBtn").onclick = () => { window.location.href = "index.html"; };
 }
@@ -556,14 +555,13 @@ function loop(){
 window.addEventListener("keydown", e=>keys[e.key]=true);
 window.addEventListener("keyup", e=>keys[e.key]=false);
 
-// 🌞 Welcome Modal Logic + Pause Button Integration
+
 window.addEventListener("load", () => {
   const modal = document.getElementById("welcomeModal");
   const startBtn = document.getElementById("startGameBtn");
   const pauseBtn = document.getElementById("help-btn"); // repurpose the help button
   pauseBtn.textContent = "⏸️"; // change icon to pause
 
-  // Always show modal on load
   modal.style.display = "flex";
 
   startBtn.addEventListener("click", () => {
@@ -572,7 +570,6 @@ window.addEventListener("load", () => {
     loop();
   });
 
-  // 🕹️ Pause / Resume toggle logic
   pauseBtn.addEventListener("click", () => {
     if (!paused) {
       paused = true;
