@@ -54,7 +54,7 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Canvas */
+
 #game {
   border-radius: 22px;
   background: #e8ffe9;
@@ -62,7 +62,7 @@ html, body {
   box-shadow: 0 0 80px rgba(0,0,0,0.35);
 }
 
-/* Right side panel */
+/* cosa de la derecyal */
 .side-panel {
   width: 300px;
   max-width: 25vw;
@@ -79,7 +79,7 @@ html, body {
   letter-spacing: .03em;
 }
 
-/* Stats block */
+/* Estadisticas */
 .stats {
   background: rgba(190,242,100,0.1);
   border: 1px solid rgba(190,242,100,0.3);
@@ -91,7 +91,7 @@ html, body {
   line-height: 1.5;
 }
 
-/* Target Info */
+/* Info */
 .target-box {
   background: radial-gradient(circle at top left, rgba(190,242,100,0.22), rgba(15,23,42,0));
   border: 1px solid rgba(190,242,100,0.3);
@@ -118,16 +118,16 @@ html, body {
   margin: 4px 0;
 }
 
-/* Responsive */
+/* 9,480, flex */
 @media (max-width: 1050px) {
   #container {flex-direction: column; gap: 14px;}
   .side-panel {width: min(90vw, 480px);}
 }
-  /* Game Over Popup */
+  /* game over */
 .popup {
   position: fixed;
   inset: 0;
-  display: none; /* hidden by default */
+  display: none; 
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.65);
@@ -168,7 +168,7 @@ html, body {
 <div id="container">
   <canvas id="game"></canvas>
 
-  <!-- Game Over Popup -->
+
 <div id="gameOverPopup" class="popup">
   <div class="popup-content">
     <h2>Game Over</h2>
@@ -215,7 +215,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ========== GAME LOGIC ==========
+//LOGICA
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
@@ -238,6 +238,7 @@ const molecules = [
   { name:"Glucose",       formula:"C6H12O6", explain:"Glucose is the final energy-rich product of photosynthesis." }
 ];
 
+  // Target
 let currentTarget, items = [], score = 0, round = 1, gameOver = false;
 
 function resizeCanvas(){
@@ -277,7 +278,7 @@ function randomDistractor(except){
 function startRound(){
   currentTarget = molecules[Math.floor(Math.random()*molecules.length)];
   items = [];
-  const count = 8; // more molecules now
+  const count = 8; // cantidad de moléculas
   const correctIndex = Math.floor(Math.random()*count);
   const head = snake[0];
 
@@ -343,21 +344,21 @@ function update() {
   const head = snake[0];
   const nh = { x: head.x + dir.x, y: head.y + dir.y };
 
-  // Check if the snake hits the wall or itself
+  // uerte por colision con pared o snake
   if (
     nh.x < 0 || nh.x >= cols ||
     nh.y < 0 || nh.y >= rows ||
     snake.some(s => s.x === nh.x && s.y === nh.y)
   ) {
     gameOver = true;
-    document.getElementById("gameOverPopup").style.display = "flex"; // 👈 show popup
+    document.getElementById("gameOverPopup").style.display = "flex"; 
     sendScoreIfPossible();
     return;
   }
 
   snake.unshift(nh);
 
-  // Check if snake hits a molecule
+  // Muerte por molecula
   const hit = items.find(it => it.x === nh.x && it.y === nh.y);
   if (hit) {
     if (hit.correct) {
@@ -366,7 +367,7 @@ function update() {
       startRound();
     } else {
       gameOver = true;
-      document.getElementById("gameOverPopup").style.display = "flex"; // 👈 show popup
+      document.getElementById("gameOverPopup").style.display = "flex"; 
       sendScoreIfPossible();
     }
   } else {
@@ -412,10 +413,9 @@ function drawSnake(alpha = 1) {
   grd.addColorStop(1, "#22c55e");
   ctx.strokeStyle = grd;
 
-  // 🪄 Interpolated snake copy for smooth sliding
   const interpSnake = snake.map((seg, i) => {
     if (i === 0) {
-      // head — slide between old and new direction
+     
  const prev = { x: seg.x - pendingDir.x, y: seg.y - pendingDir.y };
 
       return {
@@ -423,7 +423,6 @@ function drawSnake(alpha = 1) {
         y: prev.y + dir.y * alpha,
       };
     } else {
-      // follow previous segment
       const next = snake[i - 1];
       return {
         x: seg.x + (next.x - seg.x) * alpha,
@@ -432,7 +431,7 @@ function drawSnake(alpha = 1) {
     }
   });
 
-  // 🐍 body path
+ 
   ctx.beginPath();
   ctx.moveTo(interpSnake[0].x * tile + half, interpSnake[0].y * tile + half);
   for (let i = 1; i < interpSnake.length; i++) {
@@ -440,7 +439,7 @@ function drawSnake(alpha = 1) {
   }
   ctx.stroke();
 
-  // 🌿 body dots
+
   for (let i = interpSnake.length - 1; i >= 1; i--) {
     const s = interpSnake[i];
     ctx.beginPath();
@@ -449,7 +448,6 @@ function drawSnake(alpha = 1) {
     ctx.fill();
   }
 
-  // 🌼 flower head (unchanged)
   const h = interpSnake[0];
   const hx = h.x * tile + half;
   const hy = h.y * tile + half;
@@ -486,21 +484,20 @@ function drawSnake(alpha = 1) {
 
 
 function drawGameOver() {
-  // Dim the background
+  
   ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Setup centered white text
+ 
   ctx.fillStyle = "#fff";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // "Game Over" headline
-  const titleSize = Math.floor(canvas.width * 0.07); // slightly smaller and proportional
+  // teto de game over
+  const titleSize = Math.floor(canvas.width * 0.07); 
   ctx.font = `${titleSize}px system-ui`;
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - titleSize * 0.4);
 
-  // Subtext
   const subtitleSize = Math.floor(canvas.width * 0.035);
   ctx.font = `${subtitleSize}px system-ui`;
   ctx.fillText("Press R to restart", canvas.width / 2, canvas.height / 2 + subtitleSize * 1.8);
@@ -508,7 +505,7 @@ function drawGameOver() {
 }
 
 function drawSnake(alpha = 1) {
-  // same visual design
+
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.lineWidth = tile * 0.55;
@@ -517,7 +514,7 @@ function drawSnake(alpha = 1) {
   grd.addColorStop(1, "#22c55e");
   ctx.strokeStyle = grd;
 
-  // compute smooth head position
+  
   const head = snake[0];
   const prev = { x: head.x - dir.x, y: head.y - dir.y };
   const hx = (prev.x + dir.x * alpha) * tile + half;
@@ -530,7 +527,7 @@ function drawSnake(alpha = 1) {
   }
   ctx.stroke();
 
-  // body dots
+
   for (let i = snake.length - 1; i >= 1; i--) {
     const s = snake[i];
     ctx.beginPath();
@@ -539,7 +536,7 @@ function drawSnake(alpha = 1) {
     ctx.fill();
   }
 
-  // flower head (same as before)
+
   const headR = tile * 0.42;
   const petalCount = 6;
   const petalDist = tile * 0.28;
