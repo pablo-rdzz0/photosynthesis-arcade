@@ -214,7 +214,7 @@ canvas {
 <canvas id="game"></canvas>
 <div id="flash"></div>
 
-<!-- 🌞 Welcome Modal -->
+
 <div id="welcomeModal" class="modal">
   <div class="modal-content">
     <h2>🌞 Welcome to Catch the Light!</h2>
@@ -244,13 +244,12 @@ canvas {
   </div>
 </div>
 
-<!-- 🆘 Help Button -->
 <button id="help-btn">?</button>
 
 <script>
 let firebaseUser = null;
 
-// 🔥 Firebase Auth Check
+// firebase
 window.addEventListener("DOMContentLoaded", () => {
   const fs = window.firebaseStuff;
   if (!fs) return console.error("Firebase not loaded!");
@@ -282,9 +281,9 @@ function resize() {
   let h = window.innerHeight;
 
   if (w / h > ASPECT) {
-    w = h * ASPECT; // too wide
+    w = h * ASPECT; 
   } else {
-    h = w / ASPECT; // too tall
+    h = w / ASPECT; 
   }
 
   canvas.style.width = w + "px";
@@ -559,8 +558,8 @@ window.addEventListener("keyup", e=>keys[e.key]=false);
 window.addEventListener("load", () => {
   const modal = document.getElementById("welcomeModal");
   const startBtn = document.getElementById("startGameBtn");
-  const pauseBtn = document.getElementById("help-btn"); // repurpose the help button
-  pauseBtn.textContent = "⏸️"; // change icon to pause
+  const pauseBtn = document.getElementById("help-btn");
+  pauseBtn.textContent = "⏸️"; 
 
   modal.style.display = "flex";
 
@@ -598,8 +597,8 @@ window.addEventListener("load", () => {
   
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !gameOver) {
-    e.preventDefault(); // stop the page from scrolling
-    pauseBtn.click(); // trigger same logic as clicking the pause button
+    e.preventDefault(); 
+    pauseBtn.click(); 
   }
 });
 
