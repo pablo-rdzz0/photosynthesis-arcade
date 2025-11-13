@@ -91,7 +91,7 @@ async signIn() {
     return signOut(auth);
   },
 
-  // ✅ Save score (updates user's doc if they already exist)
+  
   async saveScore({ game, score, user }) {
     if (!user) return;
     try {
@@ -100,14 +100,14 @@ async signIn() {
       const snap = await getDocs(q);
 
       if (!snap.empty) {
-        // update only if the new score is higher
+        // solo mehorar con mejores ountajes
         const docRef = snap.docs[0].ref;
         const prevScore = snap.docs[0].data().score;
         if (score > prevScore) {
           await setDoc(docRef, { game, score, userEmail: user.email, userName: user.displayName });
         }
       } else {
-        // first time: add new score
+ 
         await addDoc(scoresRef, {
           game,
           score,
@@ -120,7 +120,7 @@ async signIn() {
     }
   },
 
-  // ✅ Listen to leaderboard — only best score per player
+ 
   listenTop(game, cb) {
     const q = query(
       collection(db, "scores"),
