@@ -5,7 +5,9 @@
   <title>Photosynthesis Arcade 🌿</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    /* 🌿 Global aesthetic */
+
+    
+  /*fondo*/
     html, body {
       margin: 0;
       height: 100%;
@@ -21,7 +23,7 @@
       0%,100% { background-position: 0 0; }
       50% { background-position: 100% 100%; }
     }
-
+/*degradad0*/
     h1 {
       font-size: 2.8rem;
       letter-spacing: 1px;
@@ -43,7 +45,7 @@
       margin-bottom: 24px;
     }
 
-    /* 🌿 Main container */
+    /*espacio principal*/
     .container {
       display: flex;
       flex-direction: column;
@@ -55,13 +57,15 @@
       position: relative;
     }
 
-    /* 🫧 Decorative floating lights */
+    /* burbujas del fondo */
     .bubble {
       position: absolute;
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: rgba(190, 242, 100, 0.3);
+
+      /*animación*/
       animation: float 10s ease-in-out infinite;
     }
 
@@ -71,7 +75,7 @@
       100% { transform: translateY(0) scale(1); opacity: 0.8; }
     }
 
-    /* 🌿 Buttons */
+    /* botones (10x25 muy raro) */
     button {
       background: linear-gradient(135deg, #a3e635, #65a30d);
       border: none;
@@ -92,7 +96,7 @@
       background: linear-gradient(135deg, #bef264, #4d7c0f);
     }
 
-    /* 🌿 Links to games */
+    /* links */
     #game-links {
       display: none;
       flex-direction: column;
@@ -119,7 +123,7 @@
       box-shadow: 0 0 14px rgba(190, 242, 100, 0.3);
     }
 
-    /* 🌿 Panels */
+    /* paneles individuales */
     #leaderboards {
       display: flex;
       justify-content: center;
@@ -198,7 +202,7 @@
 
     <div id="user-info"></div>
 
-    <!-- 🟩 SIDE-BY-SIDE LEADERBOARDS -->
+   
     <div id="leaderboards">
       <div class="board">
         <h3>🐍 Snake – Top 10</h3>
@@ -210,17 +214,17 @@
       </div>
     </div>
 
-    <!-- Floating light particles -->
+    <!--particulas -->
     <div class="bubble" style="top:10%; left:15%; animation-delay:0s;"></div>
     <div class="bubble" style="top:30%; left:70%; animation-delay:2s;"></div>
     <div class="bubble" style="top:60%; left:40%; animation-delay:4s;"></div>
     <div class="bubble" style="top:80%; left:80%; animation-delay:6s;"></div>
   </div>
 
-<!-- ✅ Firebase setup -->
+ 
 <script type="module" src="firebase.js"></script>
 
-<!-- ✅ Lobby logic -->
+=
 <script type="module">
   const fs = window.firebaseStuff;
 
@@ -233,7 +237,7 @@
 
   let currentUser = null;
 
-  // 🔐 Auth control
+  // autentaciónnnnnnn (firebase) (google onauth) (contra:matiesmati123)
   loginBtn.onclick = () => fs.signIn();
   logoutBtn.onclick = () => fs.signOut();
 
@@ -252,7 +256,7 @@
     }
   });
 
-  // 🌿 Leaderboard rendering
+  // No scores yet! (tableros)
   function renderLeaderboard(container, rows) {
     if (rows.length === 0) {
       container.textContent = "No scores yet!";
@@ -263,6 +267,8 @@
       .map((r, i) => {
         const rank = i + 1;
         const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
+
+      // $$$$$$
         const isUser = currentUser && r.userEmail === currentUser.email;
         const style = isUser ? "color:#22c55e;font-weight:bold;" : "";
         return `<div class="score-entry" style="${style}">
@@ -272,7 +278,7 @@
       .join("");
   }
 
-  // 🎮 Live leaderboards
+  // Tableros
   fs.listenTop("snake", (rows) => renderLeaderboard(snakeTop, rows));
   fs.listenTop("catchthelight", (rows) => renderLeaderboard(lightTop, rows));
 </script>
