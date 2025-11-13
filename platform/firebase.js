@@ -42,27 +42,46 @@ window.firebaseStuff = {
   auth,
   db,
 
-  async signIn() {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      if (error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user") {
-        await signInWithRedirect(auth, provider);
-      } else {
-        console.error("Sign-in error:", error);
-        alert("Error signing in. Check console for details.");
-      }
-    }
-  },
+async signIn() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-  async checkRedirect() {
-    try {
-      const result = await getRedirectResult(auth);
-      if (result?.user) console.log("Redirect login success:", result.user.email);
-    } catch (e) {
-      console.error("Redirect error", e);
+    // ✅ Restrict to Harkness domain
+    const email = user.email || "";
+    if (!email.endsWith("@harknessinstitute.com")) {
+      alert("Access restricted to Harkness Institute accounts only.");
+      await signOut(auth);
+      return;
     }
-  },
+  } catch (error) {
+    if (error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user") {
+      await signInWithRedirect(auth, provider);
+    } else {
+      console.error("Sign-in error:", error);
+      alert("Error signing in. Check console for details.");
+    }
+  }
+},
+
+
+ async checkRedirect() {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      const email = result.user.email || "";
+      if (!email.endsWith("@harknessinstitute.com")) {
+        alert("Access restricted to Harkness Institute accounts only.");
+        await signOut(auth);
+        return;
+      }
+      console.log("Redirect login success:", result.user.email);
+    }
+  } catch (e) {
+    console.error("Redirect error", e);
+  }
+},
+
 
   onAuth(callback) {
     return onAuthStateChanged(auth, callback);
